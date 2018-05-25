@@ -196,9 +196,6 @@ public class WsClientExample {
         if(json.has("channelId")) {
             event.setChannelId(json.get("channelId").getAsString());
         }
-        if(json.has("version")) {
-            event.setVersion(json.get("version").getAsLong());
-        }
         if(json.has("last")) {
             event.setLast(json.get("last").getAsBigDecimal());
         }
@@ -235,9 +232,6 @@ public class WsClientExample {
         if(json.has("channelId")) {
             event.setChannelId(json.get("channelId").getAsString());
         }
-        if(json.has("version")) {
-            event.setVersion(json.get("version").getAsLong());
-        }
         if(json.has("price")) {
             event.setPrice(json.get("price").getAsBigDecimal());
         }
@@ -251,9 +245,6 @@ public class WsClientExample {
         OrderBookRawEvent event = new OrderBookRawEvent();
         if(json.has("channelId")) {
             event.setChannelId(json.get("channelId").getAsString());
-        }
-        if(json.has("version")) {
-            event.setVersion(json.get("version").getAsLong());
         }
         if(json.has("id")) {
             event.setId(json.get("id").getAsLong());
@@ -271,9 +262,6 @@ public class WsClientExample {
         TradeEvent event = new TradeEvent();
         if(json.has("channelId")) {
             event.setChannelId(json.get("channelId").getAsString());
-        }
-        if(json.has("version")) {
-            event.setVersion(json.get("version").getAsLong());
         }
         if(json.has("id")) {
             event.setId(json.get("id").getAsLong());

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 public class TradeEvent {
     private String channelId;
-    private Long version;
     private Long id;
     private Long timestamp;
     private BigDecimal price;
@@ -16,14 +15,6 @@ public class TradeEvent {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
     public Long getId() {
@@ -62,7 +53,6 @@ public class TradeEvent {
     public String toString() {
         return "TradeEvent{" +
                 "channelId='" + channelId + '\'' +
-                ", version=" + version +
                 ", id=" + id +
                 ", timestamp=" + timestamp +
                 ", price=" + price +

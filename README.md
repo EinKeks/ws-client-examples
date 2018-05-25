@@ -13,6 +13,7 @@ Restrictions: you can resubscrube to particular channel only once per minute (th
 ### 1. Ticker channel
 
 To subscribe send this message:
+
 {
 	"Subscribe": {
 		"channelType": "ticker",

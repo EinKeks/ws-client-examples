@@ -6,7 +6,7 @@ First, you should connect to websocket (address is ws://ws.api.livecoin.net/ws/b
 
 Then, you can subscribe \ unsubscribe any channel on any existent currency pair.
 
-You can find example clients for Python (2.7), JS and Java in this repo. 
+You can find example clients for Java, JavaScript and Python 2.7 in this repo. 
 
 Restrictions: you can resubscrube to particular channel only once per minute (there is no restrictions for different channels).
 
@@ -14,18 +14,21 @@ Restrictions: you can resubscrube to particular channel only once per minute (th
 
 To subscribe send this message:
 
-{
-	"Subscribe": {
-		"channelType": "ticker",
-		"symbol": "BTC/USD",
-		"frequency": 2.0
-	}
-}
+    {
+        "Subscribe": {
+            "channelType": "ticker",
+            "symbol": "BTC/USD",
+            "frequency": 2.0
+        }
+    }
 
-where 
-channelType - constant "ticker"
-symbol - currency pair to subscribe
-frequency - optional parameter. When omitted, you wil get all ticker changes. When given, send rate will bi limited to one message per <frequency> seconds. Minimal frequency is 0.1.
+where
+
+`channelType` - constant "ticker";
+
+`symbol` - currency pair you are intrested in;
+
+`frequency` - optional parameter. When omitted, you wil get all ticker changes. When given, send rate will be limited to one message per `frequency` seconds. Minimal `frequency` is 0.1.
 
 Upon subscribing you will get an answer with channelId:
 

@@ -43,7 +43,7 @@ Upon subscribing you will get an answer with channelId:
         }
     }
 
-`ATTENTION`: the method of channelId generation is a subject to change!!! You cannot rely on channelId text!!!
+`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
 
 When ticker changes you will get messages like this:
 
@@ -122,7 +122,7 @@ Upon subscribing you will get an answer with channelId and current orderbook sta
 
 Price is positive for bids and negative for asks.
 
-`ATTENTION`: the method of channelId generation is a subject to change!!! You cannot rely on channelId text!!!
+`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
 
 When orderbook changes you will get messages like this (for bid changes):
 
@@ -188,7 +188,7 @@ You will get an answer:
 
 Price is positive for bids and negative for asks.
 
-`ATTENTION`: the method of channelId generation is a subject to change!!! You cannot rely on channelId text!!!
+`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
 
 When orderbook changes you will get messages like this (for bid changes):
 
@@ -240,6 +240,8 @@ Upon subscribing you will get an answer with channelId:
             }
         }
     }
+
+`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
 
 Upon new trades you will get messages like this (when trade is "BUY"):
 

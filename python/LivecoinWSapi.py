@@ -1,14 +1,16 @@
-from websocket import create_connection
+import websocket
 import json
 import datetime
 import time
+import ssl
 
 NEED_TOP_ORDERS = 5
 
 channels = dict()
 orderbooks = dict()
 orderbooksraw = dict()
-ws = create_connection("ws://ws.api.livecoin.net/ws/beta")
+ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE}) # python issue with comodo certs
+ws.connect("wss://ws.api.livecoin.net/ws/beta")
 
 def onNewTicker(symbol, last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk):
   #here you can make your trade decision
@@ -162,7 +164,7 @@ def handleIn(rawmsg):
       elif channelType == "orderbookraw":
         onOrderbookRawChange(symbol, msg["id"], msg["price"], msg["quantity"])
 
-subscribeTicker('BTC/USD', 2)
+subscribeTicker('BTC/USD', 2) #do not send me tickers too often (only one time in two seconds)
 subscribeOrderbook('BTC/USD', NEED_TOP_ORDERS*2)
 subscribeOrderbookRaw('BTC/USD', NEED_TOP_ORDERS*2)
 subscribeTrades('BTC/USD')

@@ -21,7 +21,7 @@ public class WsClientExample {
 
     public WsClientExample() throws IOException {
         webSocket = new WebSocketFactory()
-                .createSocket("ws://ws.api.livecoin.net/ws/beta")
+                .createSocket("wss://ws.api.livecoin.net/ws/beta")
                 .addListener(new WebSocketAdapter() {
                     @Override
                     public void onTextMessage(WebSocket ws, String message) {

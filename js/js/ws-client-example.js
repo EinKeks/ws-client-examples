@@ -1,6 +1,6 @@
 "use strict";
 
-var socket = connect("ws://ws.api.livecoin.net/ws/beta");
+var socket = connect("wss://ws.api.livecoin.net/ws/beta");
 
 socket.onopen = function() {
     console.log("Connection established.");

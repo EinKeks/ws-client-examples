@@ -16,6 +16,17 @@ def onNewTicker(symbol, last, high, low, volume, vwap, maxBid, minAsk, bestBid, 
   #here you can make your trade decision
   print ("ticker: %s/%f/%f/%f/%f/%f/%f/%f/%f/%f" % (symbol, last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk))
 
+def onNewCandleRaw(symbol, timestamp, open, close, high, low, volume, quantity):
+  print("ticker: %s/%s/%f/%f/%f/%f/%f/%f" % (
+    symbol,
+    datetime.datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%d %H:%M:%S'),
+    open,
+    close,
+    high,
+    low,
+    volume,
+    quantity))
+
 def onNewTrade(symbol, id, timestamp, price, quantity):
   print ("trade: %s, id=%d time=%s type=%s price=%f quantity=%f" % (
     symbol,
@@ -123,6 +134,12 @@ def subscribeTrades(symbol):
 def unsubscribeTrades(symbol):
   unsubscribe("trade", symbol)
 
+def subscribeCandleRaw(symbol, interval):
+  subscribe("candleraw", symbol, {"inverval": interval})
+
+def unsubscribeCandleRaw(symbol):
+  unsubscribe("candleraw", symbol)
+
 def handleIn(rawmsg):
   msg = json.loads(rawmsg)
   channelId = msg["channelId"]
@@ -149,6 +166,10 @@ def handleIn(rawmsg):
         orderbooksraw[symbol]["lastknownask"] = sorted(orderbooksraw[symbol]["asks"],
                                                        key=lambda x: orderbooksraw[symbol]["asks"][x][0],
                                                        reverse=True)[NEED_TOP_ORDERS]
+      if chtype == 'candleraw':
+        data = msg["data"]
+        for i in data:
+          onNewCandleRaw(symbol, i['timestamp'], i['open'], i['close'], i['high'], i['low'], i['volume'], i['quantity'])
     elif "Unsubscribe" in msg:
       del channels[channelId]
   else:
@@ -163,11 +184,15 @@ def handleIn(rawmsg):
         onOrderbookChange(symbol, msg["price"], msg["quantity"])
       elif channelType == "orderbookraw":
         onOrderbookRawChange(symbol, msg["id"], msg["price"], msg["quantity"])
+      elif channelType == "candleraw":
+        onNewCandleRaw(symbol, msg["timestamp"], msg["open"], msg["close"],
+                       msg["high"], msg["low"], msg["volume"], msg["quantity"])
 
 subscribeTicker('BTC/USD', 2) #do not send me tickers too often (only one time in two seconds)
 subscribeOrderbook('BTC/USD', NEED_TOP_ORDERS*2)
 subscribeOrderbookRaw('BTC/USD', NEED_TOP_ORDERS*2)
 subscribeTrades('BTC/USD')
+subscribeCandleRaw('BTC/USD', '1m')
 
 startedat = time.time()
 eplased = 0

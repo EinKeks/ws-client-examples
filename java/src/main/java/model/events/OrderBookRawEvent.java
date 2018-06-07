@@ -1,4 +1,4 @@
-package model;
+package model.events;
 
 import java.math.BigDecimal;
 

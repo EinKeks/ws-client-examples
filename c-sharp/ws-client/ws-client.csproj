@@ -47,10 +47,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="model\OrderBookEvent.cs" />
-    <Compile Include="model\RawOrderBookEvent.cs" />
-    <Compile Include="model\TickerEvent.cs" />
-    <Compile Include="model\TradeEvent.cs" />
+    <Compile Include="model\ChannelTypes.cs" />
+    <Compile Include="model\events\CandleRawEvent.cs" />
+    <Compile Include="model\events\OrderBookEvent.cs" />
+    <Compile Include="model\events\OrderBookRawEvent.cs" />
+    <Compile Include="model\events\TickerEvent.cs" />
+    <Compile Include="model\events\TradeEvent.cs" />
+    <Compile Include="model\parameters\CandleRawParams.cs" />
+    <Compile Include="model\parameters\OrderBookParams.cs" />
+    <Compile Include="model\parameters\OrderBookRawParams.cs" />
+    <Compile Include="model\parameters\Params.cs" />
+    <Compile Include="model\parameters\TickerParams.cs" />
+    <Compile Include="model\parameters\TradeParams.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -58,5 +66,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

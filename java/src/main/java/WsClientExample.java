@@ -1,23 +1,20 @@
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
-import model.OrderBookEvent;
-import model.OrderBookRawEvent;
-import model.TickerEvent;
-import model.TradeEvent;
+import model.ChannelTypes;
+import model.events.*;
+import model.params.*;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Locale;
 
 public class WsClientExample {
     private WebSocket webSocket;
+    private Gson mapper = new Gson();
 
     public WsClientExample() throws IOException {
         webSocket = new WebSocketFactory()
@@ -43,11 +40,12 @@ public class WsClientExample {
             webSocket.connect();
             subscribeTicker("BTC/USD",null);
             subscribeTicker("BTC/USD",10f);
-            subscribeOrderBook("BTC/USD",null);
+            subscribeOrderBook("BTC/USD",1);
             unsubscribeOrderBook("BTC/USD");
             subscribeOrderBook("BTC/USD",10);
             subscribeOrderBookRaw("BTC/USD",10);
             subscribeTrade("BTC/USD");
+            subscribeCandleRaw("BTC/USD","1m");
 
         } catch (WebSocketException e) {
             e.printStackTrace();
@@ -60,6 +58,7 @@ public class WsClientExample {
             unsubscribeOrderBook("BTC/USD");
             unsubscribeOrderBookRaw("BTC/USD");
             unsubscribeTrade("BTC/USD");
+            unsubscribeCandle("BTC/USD");
             Thread.sleep(5000);
             stop();
 
@@ -86,6 +85,11 @@ public class WsClientExample {
         //here you can make your trade decision
     }
 
+    private void onCandleRaw(CandleRawEvent candleRawEvent) {
+        System.out.println(candleRawEvent);
+        //here you can make your trade decision
+    }
+
     private void onError(String errorName, String badRequest) {
         System.out.println("Error: \"" + errorName + "\",text:\""+badRequest+"\"");
         //here you can make your trade decision
@@ -107,38 +111,41 @@ public class WsClientExample {
     }
 
     private void subscribeTicker(String symbol, Float frequency) {
-        subscribe("ticker",symbol,frequency,null);
+        subscribe(new TickerParams(symbol,frequency));
     }
 
     private void subscribeOrderBook(String symbol, Integer depth) {
-        subscribe("orderbook",symbol,null, depth);
+        subscribe(new OrderBookParams(symbol, depth));
     }
     private void subscribeOrderBookRaw(String symbol, Integer depth) {
-        subscribe("orderbookraw", symbol, null, depth);
+        subscribe(new OrderBookRawParams(symbol, depth));
     }
     private void subscribeTrade(String symbol) {
-        subscribe("trade",symbol, null, null);
+        subscribe(new TradeParams(symbol));
     }
 
-    private void subscribe(String type, String symbol, Float frequency, Integer depth) {
-        webSocket.sendText(String.format("{\"Subscribe\":{\"channelType\":\"%s\",\"symbol\":\"%s\"%s%s}}",
-                type,
-                symbol,
-                frequency == null?"":String.format(Locale.US,",\"frequency\":%f",frequency),
-                depth == null ? "": String.format(",\"depth\":%d",depth)
-                ));
+    private void subscribeCandleRaw(String symbol, String interval) {
+        subscribe(new CandleRawParams(symbol, interval));
     }
+
+    private void subscribe(Params params) {
+        webSocket.sendText(String.format("{\"Subscribe\":%s}",mapper.toJson(params)));
+    }
+
     private void unsubscribeTicker(String symbol) {
-        unsubscribeChannel(String.format("%s_%s",symbol,"ticker"));
+        unsubscribeChannel(String.format("%s_%s",symbol,ChannelTypes.TICKER));
     }
     private void unsubscribeOrderBook(String symbol) {
-        unsubscribeChannel(String.format("%s_%s",symbol,"orderbook"));
+        unsubscribeChannel(String.format("%s_%s",symbol,ChannelTypes.ORDERBOOK));
     }
     private void unsubscribeOrderBookRaw(String symbol) {
-        unsubscribeChannel(String.format("%s_%s",symbol,"orderbookraw"));
+        unsubscribeChannel(String.format("%s_%s",symbol,ChannelTypes.ORDERBOOKRAW));
     }
     private void unsubscribeTrade(String symbol) {
-        unsubscribeChannel(String.format("%s_%s",symbol,"trade"));
+        unsubscribeChannel(String.format("%s_%s",symbol,ChannelTypes.TRADE));
+    }
+    private void unsubscribeCandle(String symbol) {
+        unsubscribeChannel(String.format("%s_%s",symbol,ChannelTypes.CANDLERAW));
     }
     private void unsubscribeChannel(String channelId) {
         webSocket.sendText(String.format("{\"Unsubscribe\":{\"channelId\":\"%s\"}}",channelId));
@@ -160,15 +167,19 @@ public class WsClientExample {
                 if(mainObject.has("data") &&! mainObject.get("data").isJsonNull()) {
                     JsonArray data = mainObject.getAsJsonArray("data");
                     data.forEach((JsonElement t) -> {
-                        if (type.equals("orderbook")) {
+                        if (type.equals(ChannelTypes.ORDERBOOK)) {
                             OrderBookEvent orderBookEvent = jsonToOrderBookEvent(t.getAsJsonObject());
                             orderBookEvent.setChannelId(channelId);
                             onOrderBook(orderBookEvent);
-                        } else {
+                        } else if (type.equals(ChannelTypes.ORDERBOOKRAW)) {
                             OrderBookRawEvent orderBookRawEvent = jsonToOrderBookRawEvent(t.getAsJsonObject());
                             orderBookRawEvent.setChannelId(channelId);
                             onOrderBookRaw(orderBookRawEvent);
-                        }
+                        } else if (type.equals(ChannelTypes.CANDLERAW)) {
+                            CandleRawEvent candleRawEvent = jsonToCandleRawEvent(t.getAsJsonObject());
+                            candleRawEvent.setChannelId(channelId);
+                            onCandleRaw(candleRawEvent);
+                        } else throw new UnsupportedOperationException();;
                     });
                 }
             } else if (operation.has("Unsubscribe")) {
@@ -179,15 +190,18 @@ public class WsClientExample {
         } else {
             String channelId = mainObject.get("channelId").getAsString();
             String type = channelId.split("_")[1];
-            if(type.equals("ticker")) {
+            if(type.equals(ChannelTypes.TICKER)) {
                 onTicker(jsonToTickerEvent(mainObject));
-            } else if (type.equals("orderbook")) {
+            } else if (type.equals(ChannelTypes.ORDERBOOK)) {
                 onOrderBook(jsonToOrderBookEvent(mainObject));
-            } else if (type.equals("orderbookraw")) {
+            } else if (type.equals(ChannelTypes.ORDERBOOKRAW)) {
                 onOrderBookRaw(jsonToOrderBookRawEvent(mainObject));
-            } else if (type.equals("trade")) {
+            } else if (type.equals(ChannelTypes.TRADE)) {
                 onTrade(jsonToTradeEvent(mainObject));
+            } else if (type.equals(ChannelTypes.CANDLERAW)) {
+                onCandleRaw(jsonToCandleRawEvent(mainObject));
             }
+            else throw new UnsupportedOperationException();;
         }
     }
 
@@ -276,5 +290,34 @@ public class WsClientExample {
             event.setQuantity(json.get("quantity").getAsBigDecimal());
         }
         return  event;
+    }
+
+    private CandleRawEvent jsonToCandleRawEvent(JsonObject json) {
+        CandleRawEvent event = new CandleRawEvent();
+        if(json.has("channelId")) {
+            event.setChannelId(json.get("channelId").getAsString());
+        }
+        if(json.has("timestamp")) {
+            event.setTimestamp(json.get("timestamp").getAsLong());
+        }
+        if(json.has("open")) {
+            event.setOpen(json.get("open").getAsBigDecimal());
+        }
+        if(json.has("close")) {
+            event.setClose(json.get("close").getAsBigDecimal());
+        }
+        if(json.has("high")) {
+            event.setHigh(json.get("high").getAsBigDecimal());
+        }
+        if(json.has("low")) {
+            event.setLow(json.get("low").getAsBigDecimal());
+        }
+        if(json.has("volume")) {
+            event.setVolume(json.get("volume").getAsBigDecimal());
+        }
+        if(json.has("quantity")) {
+            event.setQuantity(json.get("price").getAsBigDecimal());
+        }
+        return event;
     }
 }

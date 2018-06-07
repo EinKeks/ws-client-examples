@@ -1,9 +1,12 @@
 ﻿using System;
 using WebSocketSharp;
 using System.Threading;
+using ws_client.model.events;
+using ws_client.model.parameters;
 using ws_client.model;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
+
 
 namespace ws_client
 {
@@ -53,12 +56,11 @@ namespace ws_client
         private void Ws_OnOpen(object sender, EventArgs e)
         {
             Console.WriteLine("Status: Connected");
-            WsClient_Subscribe("ticker", "BTC/USD", null, null);
-            WsClient_Subscribe("orderbook", "BTC/USD", null, 1);
-            WsClient_Subscribe("orderbookraw", "BTC/USD", null, 1);
-            WsClient_Subscribe("trade", "BTC/USD", null, 1);
-            WsClient_Subscribe("trade", "BTC/USD", null, 1);
-            WsClient_Unsubscribe("BTC/USD_trade");
+            WsClient_Subscribe(new TickerParams("BTC/USD",1.1f));
+            WsClient_Subscribe(new OrderBookParams("BTC/USD", 1));
+            WsClient_Subscribe(new OrderBookRawParams("BTC/USD", 1));
+            WsClient_Subscribe(new TradeParams("BTC/USD"));
+            WsClient_Subscribe(new CandleRawParams("BTC/USD", "1m"));
             //here you can make your trade decision
         }
 
@@ -92,6 +94,12 @@ namespace ws_client
             //here you can make your trade decision
         }
 
+        private void WsClient_OnCandleRaw(CandleRawEvent candleRawEvent)
+        {
+            Console.WriteLine(candleRawEvent);
+            //here you can make your trade decision
+        }
+
         private void WsClient_OnError(String message, String badRequest)
         {
             Console.WriteLine("Error: \"" + message + "\",text:\"" + badRequest + "\"");
@@ -113,22 +121,9 @@ namespace ws_client
             //here you can make your trade decision
         }
 
-        private void WsClient_Subscribe(String channelType, String symbol, float? frequency, int? depth)
+        private void WsClient_Subscribe(Params param)
         {
-            JObject operation = new JObject
-            {
-                { "channelType", channelType },
-                { "symbol", symbol }
-            };
-            if (frequency != null)
-            {
-                operation.Add(new JProperty("frequency", content: frequency));
-            }
-            if (depth != null)
-            {
-                operation.Add(new JProperty("depth", content: depth));
-            }
-            JObject query = new JObject(new JProperty("Subscribe", content: operation));
+            JObject query = new JObject(new JProperty("Subscribe", content: JObject.FromObject(param)));
             ws.Send(query.ToString());
         }
 
@@ -173,17 +168,23 @@ namespace ws_client
                     {
                         foreach (var item in msg.data)
                         {
-                            if (type.Equals("orderbook"))
+                            if (type.Equals(ChannelTypes.ORDERBOOK))
                             {
                                 OrderBookEvent orderbookEvent = jsonToOrderBookEvent(item);
                                 orderbookEvent.ChannelId = channelId;
                                 WsClient_OnOrderBook(orderbookEvent);
                             }
-                            else
+                            else if(type.Equals(ChannelTypes.ORDERBOOKRAW))
                             {
                                 OrderBookRawEvent orderBookRawEvent = jsonToOrderBookRawEvent(item);
                                 orderBookRawEvent.ChannelId = channelId;
                                 WsClient_OnOrderBookRaw(orderBookRawEvent);
+                            }
+                            else if (type.Equals(ChannelTypes.CANDLERAW))
+                            {
+                                CandleRawEvent candleRawEvent = jsonToCandleRawEvent(item);
+                                candleRawEvent.ChannelId = channelId;
+                                WsClient_OnCandleRaw(candleRawEvent);
                             }
                         }
                     }
@@ -200,21 +201,25 @@ namespace ws_client
             {
                 String channelId = msg.channelId;
                 String type = channelId.Split('_')[1];
-                if(type.Equals("ticker"))
+                if(type.Equals(ChannelTypes.TICKER))
                 {
                     WsClient_OnTicker(jsonToTickerEvent(msg));
                 }
-                else if(type.Equals("orderbook"))
+                else if(type.Equals(ChannelTypes.ORDERBOOK))
                 {
                     WsClient_OnOrderBook(jsonToOrderBookEvent(msg));
                 }
-                else if(type.Equals("orderbookraw"))
+                else if(type.Equals(ChannelTypes.ORDERBOOKRAW))
                 {
                     WsClient_OnOrderBookRaw(jsonToOrderBookRawEvent(msg));
                 }
-                else if(type.Equals("trade"))
+                else if(type.Equals(ChannelTypes.TRADE))
                 {
                     WsClient_OnTrade(jsonToTradeEvent(msg));
+                }
+                else if(type.Equals(ChannelTypes.CANDLERAW))
+                {
+                    WsClient_OnCandleRaw(jsonToCandleRawEvent(msg));
                 }
             }
         }
@@ -317,6 +322,43 @@ namespace ws_client
             if (json.ContainsKey("price"))
             {
                 result.Price = json.price;
+            }
+            if (json.ContainsKey("quantity"))
+            {
+                result.Quantity = json.quantity;
+            }
+            return result;
+        }
+        private CandleRawEvent jsonToCandleRawEvent(dynamic json)
+        {
+            CandleRawEvent result = new CandleRawEvent();
+            if (json.ContainsKey("channelId"))
+            {
+                result.ChannelId = json.channelId;
+            }
+            if (json.ContainsKey("timestamp"))
+            {
+                result.Timestamp = json.timestamp;
+            }
+            if (json.ContainsKey("open"))
+            {
+                result.Open = json.open;
+            }
+            if (json.ContainsKey("close"))
+            {
+                result.Close = json.close;
+            }
+            if (json.ContainsKey("high"))
+            {
+                result.High = json.high;
+            }
+            if (json.ContainsKey("low"))
+            {
+                result.Low = json.low;
+            }
+            if (json.ContainsKey("volume"))
+            {
+                result.Volume = json.volume;
             }
             if (json.ContainsKey("quantity"))
             {

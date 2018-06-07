@@ -1,4 +1,4 @@
-﻿namespace ws_client.model
+﻿namespace ws_client.model.events
 {
     class TickerEvent
     {

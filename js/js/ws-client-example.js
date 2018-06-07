@@ -1,19 +1,40 @@
 "use strict";
 
 var socket = connect("wss://ws.api.livecoin.net/ws/beta");
-
 socket.onopen = function() {
     console.log("Connection established.");
 
-    subscribe("ticker","BTC/USD",10.0,null);
-    subscribe("orderbook","BTC/USD",null,1);
-    subscribe("orderbookraw","BTC/USD",null,1);
-    subscribe("trade","BTC/USD",null,null);
+
+    subscribe({
+        "channelType": "ticker",
+        "symbol": "BTC/USD",
+        "frequency": 10.0
+    });
+    subscribe({
+        "channelType": "orderbook",
+        "symbol": "BTC/USD",
+        "depth":1
+    });
+    subscribe({
+        "channelType": "orderbookraw",
+        "symbol": "BTC/USD",
+        "depth":1
+    });
+    subscribe({
+        "channelType": "trade",
+        "symbol": "BTC/USD"
+    });
+    subscribe({
+        "channelType": "candleraw",
+        "symbol": "BTC/USD",
+        "interval": "1m"
+    });
     setTimeout(function () {
         unsubscribe("BTC/USD_ticker");
         unsubscribe("BTC/USD_orderbook");
         unsubscribe("BTC/USD_orderbookraw");
         unsubscribe("BTC/USD_trade");
+        unsubscribe("BTC/USD_candleraw");
     }, 10000);
     setTimeout(disconnect, 30000)
     //here you can make your trade decision
@@ -45,6 +66,8 @@ socket.onmessage = function(event) {
                             onOrderBook(item)
                         } else if (type === 'orderbookraw') {
                             onOrderBookRaw(item)
+                        } else if(type === 'candleraw') {
+                            onCandle(event)
                         }
                     })
 
@@ -64,6 +87,8 @@ socket.onmessage = function(event) {
                 onOrderBookRaw(msg)
             } else if (type === 'trade') {
                 onTrade(msg)
+            } else if (type === 'candleraw') {
+                onCandle(msg)
             }
         }
     }
@@ -94,6 +119,11 @@ function onTrade(event) {
     //here you can make your trade decision
 }
 
+function onCandle(event) {
+    console.log("candle: " + JSON.stringify(event))
+}
+
+
 function onError(event) {
     console.log("Server error: " + JSON.stringify(event))
     //here you can make your trade decision
@@ -109,13 +139,8 @@ function onUnsubscribe(channelId) {
     //here you can make your trade decision
 }
 
-function subscribe(channelType,symbol,frequency,depth) {
-    socket.send(JSON.stringify({"Subscribe":{
-            "channelType": channelType,
-            "symbol": symbol,
-            "frequency": frequency,
-            "depth":depth
-        }}))
+function subscribe(params) {
+    socket.send(JSON.stringify({"Subscribe":params}))
 }
 
 function unsubscribe(channelId) {

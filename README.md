@@ -92,7 +92,7 @@ To subscribe send message like this:
         }
     }
 
-depth is an optional parameter (depth of orderbook, which will be sent in an subscription answer).
+`depth` is an optional parameter (depth of orderbook, which will be sent in an subscription answer).
 
 Upon subscribing you will get an answer with channelId and current orderbook state:
 
@@ -162,7 +162,7 @@ To subscribe send message like this:
         }
     }
 
-depth is an optional parameter (depth of orderbook, which will be sent in an subscription answer).
+`depth` is an optional parameter (depth of orderbook, which will be sent in an subscription answer).
 
 You will get an answer:
 
@@ -305,28 +305,27 @@ Upon subscribing you will get an answer with channelId and current orderbook sta
         ]
     }
 
-"t" is interval's start timestamp (Unix timestamp multiplied by 1000),
+`t` is interval's start timestamp (Unix timestamp multiplied by 1000),
 
-"o" is open price (price at timestamp "t"),
+`o` is open price (price at timestamp `t`),
 
-"c" is close price (price at timestamp "t" + interval [1m] ), 
+`c` is close price (price at timestamp `t` + `interval` [1m] ), 
 
-"h" is the highest trade price at the interval,
+`h` is the highest trade price at the interval,
 
-"l" is the lowest  trade price at the interval,
+`l` is the lowest  trade price at the interval,
 
-"v" is volume traded at the interval,
+`v` is volume traded at the interval,
 
-"q" is quantity traded at the interval.
+`q` is quantity traded at the interval.
 
-In the "data" field you will get last 240 candles.
+In the `data` field you will get last 240 candles.
 
 `ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
 
-Every "interval" (currently - every minute) you will get messages like this:
+Every `interval` (currently - every minute) you will get messages like this:
 
     {"channelId":"BTC/USD_candle","t":1528462020000,"o":7.9E+3,"c":7901.58001,"h":7.92E+3,"l":7.9E+3,"v":613.21937803,"q":0.07762054}
-
 
 To unsubscribe send message like this:
 

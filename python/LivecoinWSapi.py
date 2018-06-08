@@ -135,7 +135,7 @@ def unsubscribeTrades(symbol):
   unsubscribe("trade", symbol)
 
 def subscribeCandle(symbol, interval):
-  subscribe("candle", symbol, {"inverval": interval})
+  subscribe("candle", symbol, {"interval": interval})
 
 def unsubscribeCandleRaw(symbol):
   unsubscribe("candle", symbol)
@@ -169,7 +169,7 @@ def handleIn(rawmsg):
       if chtype == 'candle':
         data = msg["data"]
         for i in data:
-          onNewCandle(symbol, i['timestamp'], i['open'], i['close'], i['high'], i['low'], i['volume'], i['quantity'])
+          onNewCandle(symbol, i['t'], i['o'], i['c'], i['h'], i['l'], i['v'], i['q'])
     elif "Unsubscribe" in msg:
       del channels[channelId]
   else:
@@ -199,8 +199,9 @@ ticker = True
 orderbook = True
 orderbookRaw = True
 trades = True
+candles = True
 
-while eplased < 150:
+while eplased < 180:
   result =  ws.recv()
 #  print ("Received '%s'" % result)
 
@@ -208,6 +209,7 @@ while eplased < 150:
     handleIn(result)
 
   eplased = time.time() - startedat
+
   if (orderbookRaw and eplased > 30):
       unsubscribeOrderbookRaw("BTC/USD")
       print ("finish raw orderbook testing")
@@ -227,5 +229,10 @@ while eplased < 150:
       unsubscribeTrades("BTC/USD")
       print ("finish trades testing")
       trades = False
+
+  if (candles and eplased > 150):
+    unsubscribeCandleRaw("BTC/USD")
+    print("finish candles testing")
+    candles = False
 
 ws.close()

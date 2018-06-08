@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="model\ChannelTypes.cs" />
-    <Compile Include="model\events\CandleRawEvent.cs" />
+    <Compile Include="model\events\CandleEvent.cs" />
     <Compile Include="model\events\OrderBookEvent.cs" />
     <Compile Include="model\events\OrderBookRawEvent.cs" />
     <Compile Include="model\events\TickerEvent.cs" />

@@ -49,7 +49,7 @@ hs_err_pid*
 .idea/**/dictionaries
 .idea/**/shelf
 
-# Sensitive or high-churn files
+# Sensitive or h-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
 .idea/**/dataSources.local.xml

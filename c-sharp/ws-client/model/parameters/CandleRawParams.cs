@@ -8,7 +8,7 @@ namespace ws_client.model.parameters
 {
     class CandleRawParams : Params
     {
-        public CandleRawParams(string symbol, string interval) : base(ChannelTypes.CANDLERAW, symbol)
+        public CandleRawParams(string symbol, string interval) : base(ChannelTypes.CANDLE, symbol)
         {
             this.interval = interval;
         }

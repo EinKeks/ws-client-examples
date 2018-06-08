@@ -31,7 +31,7 @@ public abstract class Params {
 
     @Override
     public String toString() {
-        return  "channelType='" + channelType + '\'' +
+        return "channelType='" + channelType + '\'' +
                 ", symbol='" + symbol + '\'';
     }
 }

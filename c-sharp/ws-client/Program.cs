@@ -94,7 +94,7 @@ namespace ws_client
             //here you can make your trade decision
         }
 
-        private void WsClient_OnCandleRaw(CandleRawEvent candleRawEvent)
+        private void WsClient_OnCandleRaw(CandleEvent candleRawEvent)
         {
             Console.WriteLine(candleRawEvent);
             //here you can make your trade decision
@@ -180,9 +180,9 @@ namespace ws_client
                                 orderBookRawEvent.ChannelId = channelId;
                                 WsClient_OnOrderBookRaw(orderBookRawEvent);
                             }
-                            else if (type.Equals(ChannelTypes.CANDLERAW))
+                            else if (type.Equals(ChannelTypes.CANDLE))
                             {
-                                CandleRawEvent candleRawEvent = jsonToCandleRawEvent(item);
+                                CandleEvent candleRawEvent = jsonToCandleEvent(item);
                                 candleRawEvent.ChannelId = channelId;
                                 WsClient_OnCandleRaw(candleRawEvent);
                             }
@@ -217,9 +217,9 @@ namespace ws_client
                 {
                     WsClient_OnTrade(jsonToTradeEvent(msg));
                 }
-                else if(type.Equals(ChannelTypes.CANDLERAW))
+                else if(type.Equals(ChannelTypes.CANDLE))
                 {
-                    WsClient_OnCandleRaw(jsonToCandleRawEvent(msg));
+                    WsClient_OnCandleRaw(jsonToCandleEvent(msg));
                 }
             }
         }
@@ -329,40 +329,40 @@ namespace ws_client
             }
             return result;
         }
-        private CandleRawEvent jsonToCandleRawEvent(dynamic json)
+        private CandleEvent jsonToCandleEvent(dynamic json)
         {
-            CandleRawEvent result = new CandleRawEvent();
+            CandleEvent result = new CandleEvent();
             if (json.ContainsKey("channelId"))
             {
                 result.ChannelId = json.channelId;
             }
-            if (json.ContainsKey("timestamp"))
+            if (json.ContainsKey("t"))
             {
-                result.Timestamp = json.timestamp;
+                result.T = json.t;
             }
-            if (json.ContainsKey("open"))
+            if (json.ContainsKey("o"))
             {
-                result.Open = json.open;
+                result.O = json.o;
             }
-            if (json.ContainsKey("close"))
+            if (json.ContainsKey("c"))
             {
-                result.Close = json.close;
+                result.C = json.c;
             }
-            if (json.ContainsKey("high"))
+            if (json.ContainsKey("h"))
             {
-                result.High = json.high;
+                result.H = json.h;
             }
-            if (json.ContainsKey("low"))
+            if (json.ContainsKey("l"))
             {
-                result.Low = json.low;
+                result.L = json.l;
             }
-            if (json.ContainsKey("volume"))
+            if (json.ContainsKey("v"))
             {
-                result.Volume = json.volume;
+                result.V = json.v;
             }
-            if (json.ContainsKey("quantity"))
+            if (json.ContainsKey("q"))
             {
-                result.Quantity = json.quantity;
+                result.Q = json.q;
             }
             return result;
         }

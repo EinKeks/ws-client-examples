@@ -25,7 +25,7 @@ socket.onopen = function() {
         "symbol": "BTC/USD"
     });
     subscribe({
-        "channelType": "candleraw",
+        "channelType": "candle",
         "symbol": "BTC/USD",
         "interval": "1m"
     });
@@ -34,7 +34,7 @@ socket.onopen = function() {
         unsubscribe("BTC/USD_orderbook");
         unsubscribe("BTC/USD_orderbookraw");
         unsubscribe("BTC/USD_trade");
-        unsubscribe("BTC/USD_candleraw");
+        unsubscribe("BTC/USD_candle");
     }, 10000);
     setTimeout(disconnect, 30000)
     //here you can make your trade decision
@@ -66,7 +66,7 @@ socket.onmessage = function(event) {
                             onOrderBook(item)
                         } else if (type === 'orderbookraw') {
                             onOrderBookRaw(item)
-                        } else if(type === 'candleraw') {
+                        } else if(type === 'candle') {
                             onCandle(event)
                         }
                     })
@@ -87,7 +87,7 @@ socket.onmessage = function(event) {
                 onOrderBookRaw(msg)
             } else if (type === 'trade') {
                 onTrade(msg)
-            } else if (type === 'candleraw') {
+            } else if (type === 'candle') {
                 onCandle(msg)
             }
         }

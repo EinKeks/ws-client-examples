@@ -12,6 +12,6 @@ namespace ws_client.model
         public const string ORDERBOOK = "orderbook";
         public const string ORDERBOOKRAW = "orderbookraw";
         public const string TRADE = "trade";
-        public const string CANDLERAW = "candleraw";
+        public const string CANDLE = "candle";
     }
 }

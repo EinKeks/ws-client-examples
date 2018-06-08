@@ -2,12 +2,12 @@ package model.params;
 
 import model.ChannelTypes;
 
-public class CandleRawParams extends Params {
+public class CandleParams extends Params {
 
     private String interval;
 
-    public CandleRawParams(String symbol, String interval) {
-        super(ChannelTypes.CANDLERAW, symbol);
+    public CandleParams(String symbol, String interval) {
+        super(ChannelTypes.CANDLE, symbol);
         this.interval = interval;
     }
 
@@ -21,7 +21,7 @@ public class CandleRawParams extends Params {
 
     @Override
     public String toString() {
-        return "CandleRawParams{" +
+        return "CandleParams{" +
                 super.toString() +
                 ", interval=" + interval +
                 "} ";

@@ -35,8 +35,8 @@ socket.onopen = function() {
         unsubscribe("BTC/USD_orderbookraw");
         unsubscribe("BTC/USD_trade");
         unsubscribe("BTC/USD_candle");
-    }, 10000);
-    setTimeout(disconnect, 30000)
+    }, 140000);
+    setTimeout(disconnect, 120000)
     //here you can make your trade decision
 };
 
@@ -62,12 +62,13 @@ socket.onmessage = function(event) {
                 if (msg.hasOwnProperty("data")) {
                     type = msg.channelId.split('_')[1];
                     msg.data.forEach(function (item) {
+                        item.channelId = msg.channelId;
                         if (type === 'orderbook') {
                             onOrderBook(item)
                         } else if (type === 'orderbookraw') {
                             onOrderBookRaw(item)
                         } else if(type === 'candle') {
-                            onCandle(event)
+                            onCandle(item)
                         }
                     })
 

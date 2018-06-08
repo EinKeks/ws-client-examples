@@ -1,6 +1,6 @@
 # Livecoin public websocket API
 
-Current BETA version of Livecoin websocket API supports four types of channels: ticker, orderbook (grouped by price), orderbook raw and trades.
+Current BETA version of Livecoin websocket API supports four types of channels: ticker, orderbook (grouped by price), orderbook raw, trades and candles.
 
 First, you should connect to websocket (address is wss://ws.api.livecoin.net/ws/beta ).
 
@@ -272,4 +272,68 @@ To unsubscribe send message like this:
             "channelId": "BTC/USD_trade"
         }
     }
+
+### 5. Candles
+
+To subscribe send message like this:
+
+    {
+        "Subscribe": {
+            "channelType": "candle",
+            "symbol": "BTC/USD",
+            "interval": "1m"
+        }
+    }
+
+interval now supports only "1m" (1 minute).
+
+Upon subscribing you will get an answer with channelId and current orderbook state:
+
+    {
+        "channelId": "BTC/USD_candle",
+        "operation": {
+            "Subscribe": {
+                "channelType": "orderbook",
+                "symbol": "BTC/USD",
+                "interval": "1m"
+            }
+        },
+        "data": [
+            {"t":1528447620000,"o":7883.0874,"c":7883.0874,"h":7883.0874,"l":7883.0874,"v":0,"q":0},
+            {"t":1528447680000,"o":7883.0874,"c":7885,"h":7885,"l":7883.0874,"v":16.52396370,"q":0.00209562},
+            ...
+        ]
+    }
+
+"t" is interval's start timestamp (Unix timestamp multiplied by 1000),
+
+"o" is open price (price at timestamp "t"),
+
+"c" is close price (price at timestamp "t" + interval [1m] ), 
+
+"h" is the highest trade price at the interval,
+
+"l" is the lowest  trade price at the interval,
+
+"v" is volume traded at the interval,
+
+"q" is quantity traded at the interval.
+
+In the "data" field you will get last 240 candles.
+
+`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
+
+Every "interval" (currently - every minute) you will get messages like this:
+
+    {"channelId":"BTC/USD_candle","t":1528462020000,"o":7.9E+3,"c":7901.58001,"h":7.92E+3,"l":7.9E+3,"v":613.21937803,"q":0.07762054}
+
+
+To unsubscribe send message like this:
+
+    {
+        "Unsubscribe": {
+            "channelId": "BTC/USD_candle"
+        }
+    }
+
 

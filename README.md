@@ -17,9 +17,11 @@ a message to subscribe and did not get the answer 'subscribed'). When you want y
 you have to queue subscriptions or take a while between sending blocks of subscriptions. Sending too many subscrption requests at once or
 not receiving too many messages from websocket will lead to disconnection.
 
-### 0. Keep-alives
+### 0. General information
 
 You will get empty ("") messages every 30 seconds.
+
+Time is synchronized with public NTP servers, so timestamps in messages are accurate.
 
 ### 1. Ticker channel
 

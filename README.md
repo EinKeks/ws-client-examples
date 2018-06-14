@@ -8,7 +8,18 @@ Then, you can subscribe \ unsubscribe any channel on any existent currency pair.
 
 You can find example clients for Java, JavaScript, Python and C# in this repo. 
 
-Restrictions: you can resubscrube to particular channel only once per minute (there is no restrictions for different channels).
+`Restrictions`
+
+1. You can resubscrube to particular channel only once per minute (there is no restrictions for different channels).
+
+2. Queue size of websocket is limited to 256 messages, so you can have maximum of 256 'inflight' subscriptions (when you have sent
+a message to subscribe and did not get the answer 'subscribed'). When you want yo subsctibe to more then 256 topics at once,
+you have to queue subscriptions or take a while between sending blocks of subscriptions. Sending too many subscrption requests at once or
+not receiving too many messages from websocket will lead to disconnection.
+
+### 0. Keep-alives
+
+You will get empty ("") messages every 30 seconds.
 
 ### 1. Ticker channel
 

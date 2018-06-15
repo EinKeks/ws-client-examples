@@ -35,8 +35,8 @@ socket.onopen = function() {
         unsubscribe("BTC/USD_orderbookraw");
         unsubscribe("BTC/USD_trade");
         unsubscribe("BTC/USD_candle");
-    }, 140000);
-    setTimeout(disconnect, 120000)
+    }, 120000);
+    setTimeout(disconnect, 140000)
     //here you can make your trade decision
 };
 

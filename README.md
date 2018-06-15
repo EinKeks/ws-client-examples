@@ -2,19 +2,19 @@
 
 Current BETA version of Livecoin websocket API supports four types of channels: ticker, orderbook (grouped by price), orderbook raw, trades and candles.
 
-First, you should connect to websocket (address is wss://ws.api.livecoin.net/ws/beta ).
+First, you should connect to websocket (address is wss://ws.api.livecoin.net/ws/beta).
 
-Then, you can subscribe \ unsubscribe any channel on any existent currency pair.
+Then, you can subscribe/unsubscribe to any channel of an existing currency pair in the exchange.
 
 You can find example clients for Java, JavaScript, Python and C# in this repo. 
 
 `Restrictions`
 
-1. You can resubscrube to particular channel only once per minute (there is no restrictions for different channels).
+1. You can resubscribe to each channel only once per minute (there is no restrictions for different channels).
 
-2. Queue size of websocket is limited to 256 messages, so you can have maximum of 256 'inflight' subscriptions (when you have sent
-a message to subscribe and did not get the answer 'subscribed'). When you want yo subsctibe to more then 256 topics at once,
-you have to queue subscriptions or take a while between sending blocks of subscriptions. Sending too many subscrption requests at once or
+2. Queue size of websocket is limited to 256 messages, so you can have a maximum of 256 'inflight' subscriptions (when you have sent
+a message to subscribe and did not get the answer 'subscribed'). When you want to subscribe to more then 256 topics at once,
+you have to queue subscriptions or wait a while between sending blocks of subscriptions. Sending too many subscription requests at once or
 not receiving too many messages from websocket will lead to disconnection.
 
 ### 0. General information
@@ -39,11 +39,11 @@ where
 
 `channelType` - constant "ticker";
 
-`symbol` - currency pair you are intrested in;
+`symbol` - currency pair you are interested in;
 
-`frequency` - optional parameter. When omitted, you wil get all ticker changes. When given, send rate will be limited to one message per `frequency` seconds. Minimal `frequency` is 0.1.
+`frequency` - optional parameter. When omitted, you will get all ticker changes. When given, send rate will be limited to one message per `frequency` seconds. Minimum `frequency` is 0.1.
 
-Upon subscribing you will get an answer with channelId:
+Upon subscribing you will get a response with channelId:
 
     {
         "channelId": "BTC/USD_ticker",
@@ -56,7 +56,7 @@ Upon subscribing you will get an answer with channelId:
         }
     }
 
-`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
+`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
 
 When ticker changes you will get messages like this:
 
@@ -135,7 +135,7 @@ Upon subscribing you will get an answer with channelId and current orderbook sta
 
 Price is positive for bids and negative for asks.
 
-`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
+`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
 
 When orderbook changes you will get messages like this (for bid changes):
 
@@ -201,7 +201,7 @@ You will get an answer:
 
 Price is positive for bids and negative for asks.
 
-`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
+`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
 
 When orderbook changes you will get messages like this (for bid changes):
 
@@ -254,7 +254,7 @@ Upon subscribing you will get an answer with channelId:
         }
     }
 
-`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
+`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
 
 Upon new trades you will get messages like this (when trade is "BUY"):
 
@@ -326,7 +326,7 @@ Upon subscribing you will get an answer with channelId and current orderbook sta
 
 `h` is the highest trade price at the interval,
 
-`l` is the lowest  trade price at the interval,
+`l` is the lowest trade price at the interval,
 
 `v` is volume traded at the interval,
 
@@ -334,18 +334,16 @@ Upon subscribing you will get an answer with channelId and current orderbook sta
 
 In the `data` field you will get last 240 candles.
 
-`ATTENTION`: the method of channelId generation is a subject to change in future releases!!! It can become numeric in some future release, and you should not get nor currency pair symbol neither channel type from channelId! Your code must save map (channelId -> channelType/symbol) according "Subscribe" answers and use this map for decoding channelId to channelType/symbol.
+`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
 
 Every `interval` (currently - every minute) you will get messages like this:
 
     {"channelId":"BTC/USD_candle","t":1528462020000,"o":7.9E+3,"c":7901.58001,"h":7.92E+3,"l":7.9E+3,"v":613.21937803,"q":0.07762054}
 
-To unsubscribe send message like this:
+To unsubscribe send a message like this:
 
     {
         "Unsubscribe": {
             "channelId": "BTC/USD_candle"
         }
     }
-
-

@@ -12,16 +12,29 @@ You can find example clients for Java, JavaScript, Python and C# in this repo.
 
 1. You can resubscribe to each channel only once per minute (there is no restrictions for different channels).
 
-2. Queue size of websocket is limited to 256 messages, so you can have a maximum of 256 'inflight' subscriptions (when you have sent
+2. Outgoing queue size of websocket is limited to 256 messages, so you can have a maximum of 256 'inflight' subscriptions (when you have sent
 a message to subscribe and did not get the answer 'subscribed'). When you want to subscribe to more then 256 topics at once,
 you have to queue subscriptions or wait a while between sending blocks of subscriptions. Sending too many subscription requests at once or
 not receiving too many messages from websocket will lead to disconnection.
 
+`Queue size will be increased on next update to handle 'subscribe one type of channel for all pairs at once'`
+
 ### 0. General information
 
-You will get empty ("") messages every 30 seconds.
+You will get empty ("") messages every 30 seconds. You don't need to answer them or send anything to keep connection alive (but read the restrictions about the outgoing queue size!!!).
+
+All subscriptions are valid and active from subscription until you sent 'Unsibscribe' message or your connection is close. There are no other ways to cancel your subscription.
 
 Time is synchronized with public NTP servers, so timestamps in messages are accurate.
+
+There are no restrictions on the connection time **for now** (really - until the next service update). But this can be changed, especially after the implementation of private functions.
+
+There are no special restrictions on the subscriptions count.
+But, for example, you will not be able to subscribe to candles of all the currency pairs - every minute system will try to send candles on each pair, and it will be more messages then outgoing queue size, so connection will be dropped.
+Candle channels are a "special case" (too many simul,
+Next case - if you will subscribe too many channels at once without reading from websocket - the same issue - outgoing queue can become full.
+
+`Queue size will be increased on next update to handle 'subscribe one type of channel for all pairs at once' and 'subscribe and get candles for all pairs'`
 
 ### 1. Ticker channel
 

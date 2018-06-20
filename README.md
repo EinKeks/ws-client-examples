@@ -316,7 +316,7 @@ Upon subscribing you will get an answer with channelId and current orderbook sta
         },
         "data": [
             {"t":1528447620000,"o":7883.0874,"c":7883.0874,"h":7883.0874,"l":7883.0874,"v":0,"q":0},
-            {"t":1528447680000,"o":7883.0874,"c":7885,"h":7885,"l":7883.0874,"v":16.52396370,"q":0.00209562},
+            {"t":1528447680000,"o":7883.0874,"c":7885,"h":7885,"l":7883.0874,"v":0.00209562,"q":16.52396370},
             ...
         ]
     }
@@ -331,9 +331,9 @@ Upon subscribing you will get an answer with channelId and current orderbook sta
 
 `l` is the lowest trade price at the interval,
 
-`v` is volume traded at the interval,
+`v` is volume traded at the interval (BTC for 'BTC/USD' pair),
 
-`q` is quantity traded at the interval.
+`q` is quoted volume traded at the interval (USD for 'BTC/USD' pair).
 
 In the `data` field you will get last 240 candles.
 

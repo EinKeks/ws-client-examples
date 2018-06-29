@@ -10,7 +10,8 @@ channels = dict()
 orderbooks = dict()
 orderbooksraw = dict()
 ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE}) # python issue with comodo certs
-ws.connect("wss://ws.api.livecoin.net/ws/beta")
+#ws.connect("wss://ws.api.livecoin.net/ws/beta")
+ws.connect("ws://localhost:9160/ws/beta")
 
 def onNewTicker(symbol, last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk):
   #here you can make your trade decision
@@ -27,13 +28,13 @@ def onNewCandle(symbol, t, o, c, h, l, v, q):
     v,
     q))
 
-def onNewTrade(symbol, id, timestamp, price, quantity):
+def onNewTrade(symbol, id, timestamp, price, quantity, isBuy):
   print ("trade: %s, id=%d time=%s type=%s price=%f quantity=%f" % (
     symbol,
     id,
     datetime.datetime.fromtimestamp(timestamp/1000).strftime('%Y-%m-%d %H:%M:%S'),
-    "BUY" if price>0 else "SELL",
-    abs(price),
+    "BUY" if isBuy else "SELL",
+    price,
     quantity
   ))
   # here you can make your trade decision
@@ -50,23 +51,14 @@ def printOrderBook(symbol):
   print (str)
 
 
-def onOrderbookChange(symbol, price, quantity, initial=False):
-  if price > 0:
-    if quantity == 0:
-      if price in orderbooks[symbol]["bids"]:
-        del orderbooks[symbol]["bids"][price]
-    else:
-      orderbooks[symbol]["bids"][price] = quantity
+def onOrderbookChange(symbol, timestamp, price, quantity, isBid, initial=False):
+  slots = orderbooks[symbol]["bids" if isBid else "asks"]
+  if quantity == 0:
+    if price in slots:
+      del slots[price]
   else:
-    if quantity == 0:
-      if abs(price) in orderbooks[symbol]["asks"]:
-        del orderbooks[symbol]["asks"][abs(price)]
-    else:
-      orderbooks[symbol]["asks"][abs(price)] = quantity
+    slots[price] = quantity
   printOrderBook(symbol)
-  #todo: check if top ask <= orderbooks[symbol]["lastknownask"], reload orderbook (Unsubscribe && Subscribe)
-  #todo: check if top bid >= orderbooks[symbol]["lastknownbid"], reload orderbook (Unsubscribe && Subscribe)
-  # here you can make your trade decision
 
 def printOrderBookRaw(symbol):
   book = orderbooksraw[symbol]
@@ -79,119 +71,110 @@ def printOrderBookRaw(symbol):
     str += ("%d:%f->%f" % (b, book["asks"][b][0], book["asks"][b][1]))
   print (str)
 
-def onOrderbookRawChange(symbol, id, price, quantity, initial=False):
-  if price > 0:
-    if quantity == 0:
-      if id in orderbooksraw[symbol]["bids"]:
-        del orderbooksraw[symbol]["bids"][id]
-    else:
-      orderbooksraw[symbol]["bids"][id] = (price,quantity)
+def onOrderbookRawChange(symbol, timestamp, id, price, quantity, isBid, initial=False):
+  slots = orderbooksraw[symbol]["bids" if isBid else "asks"]
+  if quantity == 0:
+    if id in slots:
+      del slots[id]
   else:
-    if quantity == 0:
-      if id in orderbooksraw[symbol]["asks"]:
-        del orderbooksraw[symbol]["asks"][id]
-    else:
-      orderbooksraw[symbol]["asks"][id] = (abs(price), quantity)
+    slots[id] = (price,quantity)
   printOrderBookRaw(symbol)
-  # todo: check if !initial && top ask <= orderbooksraw[symbol]["lastknownask"], reload orderbook (Unsubscribe && Subscribe)
-  # todo: check if !initial && top bid >= orderbooksraw[symbol]["lastknownbid"], reload orderbook (Unsubscribe && Subscribe)
-  # here you can make your trade decision
 
+def onUnsubscribe(channelType, symbol):
+  print("unsibscribed from %s for %s" % (channelType, symbol))
 
-def subscribe(type, symbol, options):
-  msg = {"Subscribe": {"channelType": type, "symbol": symbol}}
-  for opt in options:
-    msg["Subscribe"][opt] = options[opt]
-  ws.send(json.dumps(msg))
-
-def unsubscribe(type, symbol):
-  for c in channels:
-    if channels[c][0] == symbol and channels[c][1] == type:
-      msg = {"Unsubscribe": {"channelId": c}}
-      ws.send(json.dumps(msg))
+def toWs(*arg):
+  ws.send(json.dumps(list(arg)))
 
 def subscribeTicker(symbol, frequency=None):
-  subscribe("ticker", symbol, {} if (frequency == None) else {"frequency":frequency})
+  if None == frequency:
+    toWs("s", "t", symbol)
+  else:
+    toWs("s", "t", symbol, frequency)
 
 def unsubscribeTicker(symbol):
-  unsubscribe("ticker", symbol)
+  toWs("u", "t", symbol)
 
 def subscribeOrderbook(symbol, depth=None):
-  subscribe("orderbook", symbol, {} if (depth == None) else {"depth": depth})
+  if None == depth:
+    toWs("s", "o", symbol)
+  else:
+    toWs("s", "o", symbol, depth)
 
 def unsubscribeOrderbook(symbol):
-  unsubscribe("orderbook", symbol)
+  toWs("u", "o", symbol)
 
 def subscribeOrderbookRaw(symbol, depth=None):
-  subscribe("orderbookraw", symbol, {} if (depth == None) else {"depth": depth})
+  if None == depth:
+    toWs("s", "r", symbol)
+  else:
+    toWs("s", "r", symbol, depth)
 
 def unsubscribeOrderbookRaw(symbol):
-  unsubscribe("orderbookraw", symbol)
+  toWs("u", "r", symbol)
 
 def subscribeTrades(symbol):
-  subscribe("trade", symbol, {})
+  toWs("s", "d", symbol)
 
 def unsubscribeTrades(symbol):
-  unsubscribe("trade", symbol)
+  toWs("u", "d", symbol)
 
-def subscribeCandle(symbol, interval):
-  subscribe("candle", symbol, {"interval": interval})
+def subscribeCandle(symbol, interval, historyDepth=None):
+  if None == historyDepth:
+    toWs("s", "c", symbol, interval)
+  else:
+    toWs("s", "c", symbol, interval, historyDepth)
 
 def unsubscribeCandleRaw(symbol):
-  unsubscribe("candle", symbol)
+  toWs("u", "c", symbol)
 
-def handleIn(rawmsg):
-  msg = json.loads(rawmsg)
-  channelId = msg["channelId"]
-  if "operation" in msg:
-    if "Subscribe" in msg["operation"]:
-      sub = msg["operation"]["Subscribe"]
-      symbol = sub["symbol"]
-      chtype = sub["channelType"]
-      channels[channelId] = (symbol, chtype)
-      if chtype == 'orderbook':
-        data = msg["data"]
-        orderbooks[symbol] = {"asks":{}, "bids":{}}
-        for i in data:
-          onOrderbookChange(symbol, i["price"], i['quantity'])
-        orderbooks[symbol]["lastknownbid"] = sorted(orderbooks[symbol]["bids"])[NEED_TOP_ORDERS]
-        orderbooks[symbol]["lastknownask"] = sorted(orderbooks[symbol]["asks"], reverse=True)[NEED_TOP_ORDERS]
-      if chtype == 'orderbookraw':
-        data = msg["data"]
-        orderbooksraw[symbol] = {"asks":{}, "bids":{}}
-        for i in data:
-          onOrderbookRawChange(symbol, i["id"], i["price"], i['quantity'], initial=True)
-        orderbooksraw[symbol]["lastknownbid"] = sorted(orderbooksraw[symbol]["bids"],
-                                                       key=lambda x: orderbooksraw[symbol]["bids"][x][0])[NEED_TOP_ORDERS]
-        orderbooksraw[symbol]["lastknownask"] = sorted(orderbooksraw[symbol]["asks"],
-                                                       key=lambda x: orderbooksraw[symbol]["asks"][x][0],
-                                                       reverse=True)[NEED_TOP_ORDERS]
-      if chtype == 'candle':
-        data = msg["data"]
-        for i in data:
-          onNewCandle(symbol, i['t'], i['o'], i['c'], i['h'], i['l'], i['v'], i['q'])
-    elif "Unsubscribe" in msg:
-      del channels[channelId]
-  else:
-    if channelId in channels:
-      (symbol, channelType) = channels[channelId]
-      if channelType == "ticker":
-        onNewTicker(symbol, msg["last"], msg["high"], msg["low"], msg["volume"], msg["vwap"],
-                         msg["maxBid"], msg["minAsk"], msg["bestBid"], msg["bestAsk"])
-      elif channelType == "trade":
-        onNewTrade(symbol, msg["id"], msg["timestamp"], msg["price"], msg["quantity"])
-      elif channelType == "orderbook":
-        onOrderbookChange(symbol, msg["price"], msg["quantity"])
-      elif channelType == "orderbookraw":
-        onOrderbookRawChange(symbol, msg["id"], msg["price"], msg["quantity"])
-      elif channelType == "candle":
-        onNewCandle(symbol, msg["t"], msg["o"], msg["c"], msg["h"], msg["l"], msg["v"], msg["q"])
+def NullableToFloat(num):
+  if None == num:
+    return float('nan')
+  return float(num)
 
+def handleIn(msg, isSnapshot = False):
+  channelType = msg.pop(0)
+  if "s" == channelType:
+    handleIn(msg[0], isSnapshot = True) # format of snapshot is the same as notification format
+  elif "u" == channelType:
+    [type, symbol] = msg[0]
+    onUnsubscribe(type, symbol)
+  elif "r" == channelType: #raw orderbook
+    symbol = msg.pop(0)
+    if isSnapshot:
+      orderbooksraw[symbol] = {"asks": {}, "bids": {}}  # clear it
+    for [id, timestamp, price, quantity] in msg:
+      onOrderbookRawChange(symbol, timestamp, id, abs(price), quantity, isBid = (price > 0), initial=isSnapshot)
+  elif "o" == channelType:  # orderbook
+    symbol = msg.pop(0)
+    if isSnapshot:
+      orderbooks[symbol] = {"asks": {}, "bids": {}}  # clear it
+    for [price, quantity] in msg:
+      timestamp = 0
+      onOrderbookChange(symbol, timestamp, abs(price), quantity, isBid=(price > 0), initial=isSnapshot)
+  elif "d" == channelType: #trades
+    symbol = msg.pop(0)
+    for [id, timestamp, price, quantity] in msg:
+      onNewTrade(symbol, id, timestamp, abs(price), quantity, isBuy = (price > 0))
+  elif "c" == channelType: #candles
+    symbol = msg.pop(0)
+    for [t, o, c, h, l, v, q] in msg:
+      onNewCandle(symbol, t, o, c, h, l, v, q)
+  elif "t" == channelType: #ticker
+    symbol = msg.pop(0)
+    for [last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk] in msg:
+      # all the values can be null (for new pairs without any orders for example)
+      onNewTicker(symbol, NullableToFloat(last), NullableToFloat(high), NullableToFloat(low), NullableToFloat(volume),
+                  NullableToFloat(vwap), NullableToFloat(maxBid), NullableToFloat(minAsk), NullableToFloat(bestBid),
+                  NullableToFloat(bestAsk))
+
+
+subscribeOrderbookRaw('BTC/USD', NEED_TOP_ORDERS) # only NEED_TOP_ORDERS bids and asks in snapshot
 subscribeTicker('BTC/USD', 2) #do not send me tickers too often (only one time in two seconds)
-subscribeOrderbook('BTC/USD', NEED_TOP_ORDERS*2)
-subscribeOrderbookRaw('BTC/USD', NEED_TOP_ORDERS*2)
+subscribeOrderbook('BTC/USD', NEED_TOP_ORDERS) # only NEED_TOP_ORDERS bids and asks positions in snapshot
 subscribeTrades('BTC/USD')
-subscribeCandle('BTC/USD', '1m')
+subscribeCandle('BTC/USD', '1m', 10) # and give me 10 last candles
 
 startedat = time.time()
 eplased = 0
@@ -203,10 +186,10 @@ candles = True
 
 while eplased < 180:
   result =  ws.recv()
-#  print ("Received '%s'" % result)
+  print ("Received '%s'" % result)
 
   if result != "": # not keepalive
-    handleIn(result)
+    handleIn(json.loads(result))
 
   eplased = time.time() - startedat
 

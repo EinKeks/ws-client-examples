@@ -1,40 +1,22 @@
 "use strict";
 
-var socket = connect("wss://ws.api.livecoin.net/ws/beta");
+// var socket = connect("wss://ws.api.livecoin.net/ws/beta");
+var socket = connect("ws://localhost:9161/ws/beta");
 socket.onopen = function() {
     console.log("Connection established.");
 
+    subscribe(null, "t", "BTC/USD", 10.0);
+    subscribe(null, "o", "BTC/USD", 1);
+    subscribe(null, "r", "BTC/USD", 1);
+    subscribe(null, "d", "BTC/USD", null);
+    subscribe(null, "c", "BTC/USD", "1m");
 
-    subscribe({
-        "channelType": "ticker",
-        "symbol": "BTC/USD",
-        "frequency": 10.0
-    });
-    subscribe({
-        "channelType": "orderbook",
-        "symbol": "BTC/USD",
-        "depth":1
-    });
-    subscribe({
-        "channelType": "orderbookraw",
-        "symbol": "BTC/USD",
-        "depth":1
-    });
-    subscribe({
-        "channelType": "trade",
-        "symbol": "BTC/USD"
-    });
-    subscribe({
-        "channelType": "candle",
-        "symbol": "BTC/USD",
-        "interval": "1m"
-    });
     setTimeout(function () {
-        unsubscribe("BTC/USD_ticker");
-        unsubscribe("BTC/USD_orderbook");
-        unsubscribe("BTC/USD_orderbookraw");
-        unsubscribe("BTC/USD_trade");
-        unsubscribe("BTC/USD_candle");
+        unsubscribe(null,"BTC/USD", "t");
+        unsubscribe(null,"BTC/USD", "r");
+        unsubscribe(null,"BTC/USD", "o");
+        unsubscribe(null,"BTC/USD", "d");
+        unsubscribe(null,"BTC/USD", "c");
     }, 120000);
     setTimeout(disconnect, 140000)
     //here you can make your trade decision
@@ -53,43 +35,70 @@ socket.onmessage = function(event) {
     // console.log("data received " + event.data);
     if(event.data !== '') {
         var msg = JSON.parse(event.data);
-        var type;
-        if (msg.hasOwnProperty('Error')) {
-            onError(msg)
-        } else if (msg.hasOwnProperty("operation")) {
-            if (msg.operation.hasOwnProperty("Subscribe")) {
-                onSubscribe(msg.channelId);
-                if (msg.hasOwnProperty("data")) {
-                    type = msg.channelId.split('_')[1];
-                    msg.data.forEach(function (item) {
-                        item.channelId = msg.channelId;
-                        if (type === 'orderbook') {
-                            onOrderBook(item)
-                        } else if (type === 'orderbookraw') {
-                            onOrderBookRaw(item)
-                        } else if(type === 'candle') {
-                            onCandle(item)
-                        }
-                    })
-
-                }
-            } else if (msg.operation.hasOwnProperty("Unsubscribe")) {
-                onUnsubscribe(msg.channelId)
-            } else {
-                console.log("Unsupported operation")
+        if(msg[0] === "s") {
+            //subscribe action
+            onSubscribe(msg);
+            var events = extractEventsFromSubscribe(msg[1]);
+            if(msg[1][0] === "t") {
+                //ticker
+                events.forEach(function(event){
+                    onTicker(event)
+                })
+            } else if (msg[1][0] === "r") {
+                //orderbookraw
+                events.forEach(function(event){
+                    onOrderBookRaw(event)
+                })
+            } else if (msg[1][0] === "o") {
+                //orderbook
+                events.forEach(function(event){
+                    onOrderBook(event)
+                })
+            } else if (msg[1][0] === "d") {
+                //trade
+                events.forEach(function(event){
+                    onTrade(event)
+                })
+            } else if (msg[1][0] === "c") {
+                //candle
+                events.forEach(function(event){
+                    onCandle(event)
+                })
             }
+        } else if (msg[0] === "u") {
+            //unsubscribe action
+            onUnsubscribe(msg)
+        } else if (msg[0] === "e") {
+            //error event
+            onError(msg)
         } else {
-            type = msg.channelId.split('_')[1];
-            if (type === 'ticker') {
-                onTicker(msg)
-            } else if (type === 'orderbook') {
-                onOrderBook(msg)
-            } else if (type === 'orderbookraw') {
-                onOrderBookRaw(msg)
-            } else if (type === 'trade') {
-                onTrade(msg)
-            } else if (type === 'candle') {
-                onCandle(msg)
+            //channel event
+            events = exctractEvent(msg[1]);
+            if(msg[1] === "t") {
+                //ticker
+                events.forEach(function(event){
+                    onTicker(event)
+                })
+            } else if (msg[1] === "r") {
+                //orderbookraw
+                events.forEach(function(event){
+                    onOrderBookRaw(event)
+                })
+            } else if (msg[1] === "o") {
+                //orderbook
+                events.forEach(function(event){
+                    onOrderBook(event)
+                })
+            } else if (msg[1] === "d") {
+                //trade
+                events.forEach(function(event){
+                    onTrade(event)
+                })
+            } else if (msg[1] === "c") {
+                //candle
+                events.forEach(function(event){
+                    onCandle(event)
+                })
             }
         }
     }
@@ -125,31 +134,28 @@ function onCandle(event) {
 }
 
 
-function onError(event) {
-    console.log("Server error: " + JSON.stringify(event))
+function onError(msg) {
+    console.log("Error: " + "\ntext: " + msg[1][0] + "\ncode: " + msg[1][1] + "\nmessage: " + msg[1][2])
     //here you can make your trade decision
 }
 
-function onSubscribe(channelId) {
-    console.log("channel subscribed: " + channelId)
+function onSubscribe(msg) {
+
+    console.log("channel subscribed: " + channelFromCode(msg[1][0]) + '_' + msg[1][1])
     //here you can make your trade decision
 }
 
-function onUnsubscribe(channelId) {
-    console.log("channel unsubscribed: " + channelId)
+function onUnsubscribe(msg) {
+    console.log("channel unsubscribed: " + channelFromCode(msg[1][0]) + '_' + msg[1][1])
     //here you can make your trade decision
 }
 
-function subscribe(params) {
-    socket.send(JSON.stringify({"Subscribe":params}))
+function subscribe(token, code, currencyPair, param) {
+    socket.send(JSON.stringify([token,"s", code, currencyPair, param]))
 }
 
-function unsubscribe(channelId) {
-    socket.send(JSON.stringify({
-        "Unsubscribe": {
-            "channelId":channelId
-        }
-    }))
+function unsubscribe(token, currencyPair, channelId) {
+    socket.send(JSON.stringify([token, "u", channelId, currencyPair]))
 }
 
 function connect(path) {
@@ -159,4 +165,40 @@ function connect(path) {
 function disconnect() {
     socket.close();
     console.log("Connection closed")
+}
+
+function channelFromCode(code) {
+    var channel;
+    if(code === "t") {
+        channel = "ticker";
+    } else if (code === "r") {
+        channel = "orderbookraw";
+    } else if (code === "o") {
+        channel = "orderbook";
+    } else if (code === "d") {
+        channel = "trade";
+    } else if (code === "c") {
+        channel = "candle"
+    }
+    return channel;
+}
+function extractEventsFromSubscribe(msg) {
+    var result = [];
+    var length = msg.length;
+    if( length > 3) {
+        for(var i = 3; i < length - 1; i++) {
+            result.push(msg[i])
+        }
+    }
+    return result
+}
+function exctractEvent(msg) {
+    var result = [];
+    var length = msg.length;
+    if( length > 2) {
+        for(var i = 2; i < length - 1; i++) {
+            result.push(msg[i])
+        }
+    }
+    return result
 }

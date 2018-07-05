@@ -37,7 +37,7 @@ socket.onmessage = function(event) {
         if(msg[0] === "s") {
             //subscribe action
             onSubscribe(msg);
-            var events = extractEventsFromSubscribe(msg[2]);
+            var events = extractEvents(msg[2]);
             if(msg[2][0] === "t") {
                 //ticker
                 events.forEach(function(event){
@@ -72,7 +72,7 @@ socket.onmessage = function(event) {
             onError(msg)
         } else {
             //channel event
-            events = exctractEvent(msg[1]);
+            events = extractEvents(msg[1]);
             if(msg[1] === "t") {
                 //ticker
                 events.forEach(function(event){
@@ -181,17 +181,8 @@ function channelFromCode(code) {
     }
     return channel;
 }
-function extractEventsFromSubscribe(msg) {
-    var result = [];
-    var length = msg.length;
-    if( length > 3) {
-        for(var i = 3; i < length - 1; i++) {
-            result.push(msg[i])
-        }
-    }
-    return result
-}
-function exctractEvent(msg) {
+
+function extractEvents(msg) {
     var result = [];
     var length = msg.length;
     if( length > 2) {

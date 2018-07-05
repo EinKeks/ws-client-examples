@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class TickerEvent {
     private String channelId;
+    private Long changed;
     private BigDecimal last;
     private BigDecimal high;
     private BigDecimal low;
@@ -20,6 +21,14 @@ public class TickerEvent {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+
+    public Long getChanged() {
+        return changed;
+    }
+
+    public void setChanged(Long changed) {
+        this.changed = changed;
     }
 
     public BigDecimal getLast() {
@@ -98,6 +107,7 @@ public class TickerEvent {
     public String toString() {
         return "Ticker{" +
                 "channelId='" + channelId + '\'' +
+                ", changed=" + changed +
                 ", last=" + last +
                 ", high=" + high +
                 ", low=" + low +

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 public class OrderBookEvent {
     private String channelId;
+    private Long changed;
     private BigDecimal price;
     private BigDecimal quantity;
 
@@ -13,6 +14,14 @@ public class OrderBookEvent {
 
     public void setChannelId(String channelId) {
         this.channelId = channelId;
+    }
+
+    public Long getChanged() {
+        return changed;
+    }
+
+    public void setChanged(Long changed) {
+        this.changed = changed;
     }
 
     public BigDecimal getPrice() {
@@ -35,6 +44,7 @@ public class OrderBookEvent {
     public String toString() {
         return "OrderBook{" +
                 "channelId='" + channelId + '\'' +
+                ", changed=" + changed +
                 ", price=" + price +
                 ", quantity=" + quantity +
                 '}';

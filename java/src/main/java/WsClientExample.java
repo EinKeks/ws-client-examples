@@ -6,6 +6,8 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import model.ChannelTypes;
 import model.events.*;
 import model.params.*;
+import serializers.ChannelCodes;
+import serializers.CustomSerializers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,9 +15,18 @@ import java.io.InputStreamReader;
 
 public class WsClientExample {
     private WebSocket webSocket;
-    private Gson mapper = new Gson();
+    private Gson mapper;
 
     public WsClientExample() throws IOException {
+        mapper = new GsonBuilder()
+                .registerTypeAdapter(TickerParams.class, CustomSerializers.ticker)
+                .registerTypeAdapter(OrderBookRawParams.class, CustomSerializers.orderBookRaw)
+                .registerTypeAdapter(OrderBookParams.class, CustomSerializers.orderBook)
+                .registerTypeAdapter(TradeParams.class, CustomSerializers.trade)
+                .registerTypeAdapter(CandleParams.class, CustomSerializers.candle)
+                .registerTypeAdapter(UnsubscribeParams.class, CustomSerializers.unsubscribe)
+                .create();
+
         webSocket = new WebSocketFactory()
                 .createSocket("wss://ws.api.livecoin.net/ws/beta")
                 .addListener(new WebSocketAdapter() {
@@ -110,221 +121,170 @@ public class WsClientExample {
     }
 
     private void subscribeTicker(String symbol, Float frequency) {
-        subscribe(new TickerParams(symbol, frequency));
+        subscribe(mapper.toJson(new TickerParams(symbol, frequency)));
     }
 
     private void subscribeOrderBook(String symbol, Integer depth) {
-        subscribe(new OrderBookParams(symbol, depth));
+        subscribe(mapper.toJson(new OrderBookParams(symbol, depth)));
     }
 
     private void subscribeOrderBookRaw(String symbol, Integer depth) {
-        subscribe(new OrderBookRawParams(symbol, depth));
+        subscribe(mapper.toJson(new OrderBookRawParams(symbol, depth)));
     }
 
     private void subscribeTrade(String symbol) {
-        subscribe(new TradeParams(symbol));
+        subscribe(mapper.toJson(new TradeParams(symbol)));
     }
 
     private void subscribeCandle(String symbol, String interval) {
-        subscribe(new CandleParams(symbol, interval));
+        subscribe(mapper.toJson(new CandleParams(symbol, interval)));
     }
 
-    private void subscribe(Params params) {
-        webSocket.sendText(String.format("{\"Subscribe\":%s}", mapper.toJson(params)));
+    private void subscribe(String request) {
+        System.out.println("Send: " +request);
+        webSocket.sendText(request);
     }
 
     private void unsubscribeTicker(String symbol) {
-        unsubscribeChannel(String.format("%s_%s", symbol, ChannelTypes.TICKER));
+        unsubscribeChannel(new UnsubscribeParams(symbol, ChannelTypes.TICKER));
     }
 
     private void unsubscribeOrderBook(String symbol) {
-        unsubscribeChannel(String.format("%s_%s", symbol, ChannelTypes.ORDERBOOK));
+        unsubscribeChannel(new UnsubscribeParams(symbol, ChannelTypes.ORDERBOOK));
     }
 
     private void unsubscribeOrderBookRaw(String symbol) {
-        unsubscribeChannel(String.format("%s_%s", symbol, ChannelTypes.ORDERBOOKRAW));
+        unsubscribeChannel(new UnsubscribeParams(symbol, ChannelTypes.ORDERBOOKRAW));
     }
 
     private void unsubscribeTrade(String symbol) {
-        unsubscribeChannel(String.format("%s_%s", symbol, ChannelTypes.TRADE));
+        unsubscribeChannel(new UnsubscribeParams(symbol,ChannelTypes.TRADE));
     }
 
     private void unsubscribeCandle(String symbol) {
-        unsubscribeChannel(String.format("%s_%s", symbol, ChannelTypes.CANDLE));
+        unsubscribeChannel(new UnsubscribeParams(symbol, ChannelTypes.CANDLE));
     }
 
-    private void unsubscribeChannel(String channelId) {
-        webSocket.sendText(String.format("{\"Unsubscribe\":{\"channelId\":\"%s\"}}", channelId));
+    private void unsubscribeChannel(UnsubscribeParams params) {
+        System.out.println("Send: " + mapper.toJson(params));
+        webSocket.sendText(mapper.toJson(params));
     }
 
     private void parseMessage(String message) {
         JsonParser parser = new JsonParser();
-        JsonObject mainObject = parser.parse(message).getAsJsonObject();
-        if (mainObject.has("Error")) {
-            String errorName = mainObject.get("Error").getAsString();
-            String badRequest = mainObject.get("text").getAsString();
-            onError(errorName, badRequest);
-        } else if (mainObject.has("operation")) {
-            String channelId = mainObject.get("channelId").getAsString();
-            String type = channelId.split("_")[1];
-            JsonObject operation = mainObject.getAsJsonObject("operation");
-            if (operation.has("Subscribe")) {
-                onSubscribe(channelId);
-                if (mainObject.has("data") && !mainObject.get("data").isJsonNull()) {
-                    JsonArray data = mainObject.getAsJsonArray("data");
-                    data.forEach((JsonElement t) -> {
-                        if (type.equals(ChannelTypes.ORDERBOOK)) {
-                            OrderBookEvent orderBookEvent = jsonToOrderBookEvent(t.getAsJsonObject());
-                            orderBookEvent.setChannelId(channelId);
-                            onOrderBook(orderBookEvent);
-                        } else if (type.equals(ChannelTypes.ORDERBOOKRAW)) {
-                            OrderBookRawEvent orderBookRawEvent = jsonToOrderBookRawEvent(t.getAsJsonObject());
-                            orderBookRawEvent.setChannelId(channelId);
-                            onOrderBookRaw(orderBookRawEvent);
-                        } else if (type.equals(ChannelTypes.CANDLE)) {
-                            CandleEvent candleEvent = jsonToCandleEvent(t.getAsJsonObject());
-                            candleEvent.setChannelId(channelId);
-                            onCandle(candleEvent);
-                        } else throw new UnsupportedOperationException();
-                        ;
-                    });
-                }
-            } else if (operation.has("Unsubscribe")) {
-                onUnsubscribe(channelId);
-            } else {
-                throw new UnsupportedOperationException();
-            }
+        JsonArray values = parser.parse(message).getAsJsonArray();
+        if(values.get(0).getAsString().equals("s")) {
+            //subscribe channel
+            onSubscribe(ChannelCodes.channelCodesToTypes(values.get(2).getAsJsonArray().get(0).getAsString()) + "_" + values.get(2).getAsJsonArray().get(1).getAsString());
+            processEvents(values);
+        } else if (values.get(0).getAsString().equals("u")) {
+            //unsubscribe channel
+            onSubscribe(ChannelCodes.channelCodesToTypes(values.get(2).getAsJsonArray().get(0).getAsString()) + "_" + values.get(2).getAsJsonArray().get(1).getAsString());
+        } else if(values.get(0).getAsString().equals("e")) {
+            onError(values.get(1).getAsJsonArray().get(0).getAsString(),values.get(1).getAsJsonArray().get(2).getAsString());
+            //error
         } else {
-            String channelId = mainObject.get("channelId").getAsString();
-            String type = channelId.split("_")[1];
-            if (type.equals(ChannelTypes.TICKER)) {
-                onTicker(jsonToTickerEvent(mainObject));
-            } else if (type.equals(ChannelTypes.ORDERBOOK)) {
-                onOrderBook(jsonToOrderBookEvent(mainObject));
-            } else if (type.equals(ChannelTypes.ORDERBOOKRAW)) {
-                onOrderBookRaw(jsonToOrderBookRawEvent(mainObject));
-            } else if (type.equals(ChannelTypes.TRADE)) {
-                onTrade(jsonToTradeEvent(mainObject));
-            } else if (type.equals(ChannelTypes.CANDLE)) {
-                onCandle(jsonToCandleEvent(mainObject));
-            } else throw new UnsupportedOperationException();
-            ;
+            //event notify
+            processEvents(values);
         }
     }
 
-    private TickerEvent jsonToTickerEvent(JsonObject json) {
+    private void processEvents(JsonArray array) {
+        int size = arraySize(array);
+        String channelCode = extractChannelCode(array);
+        String channelType = ChannelCodes.channelCodesToTypes(channelCode);
+        String currencyPair = array.get(2).getAsJsonArray().get(1).getAsString();
+        String channelId = String.format("%s_%s",channelType,currencyPair);
+        if (size > 2) {
+            for (int i = 2; i < size; i++) {
+                processEvent(channelType, channelId, array.get(2).getAsJsonArray().get(i).getAsJsonArray());
+            }
+        }
+
+    }
+
+    private String extractChannelCode(JsonArray array) {
+        return array.get(2).getAsJsonArray().get(0).getAsString();
+    }
+
+    private Integer arraySize(JsonArray array) {
+        return array.get(2).getAsJsonArray().size();
+    }
+
+    private void processEvent(String channelType, String channelId,JsonArray srcEvent) {
+        if(ChannelTypes.TICKER.equals(channelType)) {
+            TickerEvent event = jsonToTickerEvent(srcEvent);
+            event.setChannelId(channelId);
+            onTicker(event);
+        } else if(ChannelTypes.ORDERBOOKRAW.equals(channelType)) {
+            OrderBookRawEvent event = jsonToOrderBookRawEvent(srcEvent);
+            event.setChannelId(channelId);
+            onOrderBookRaw(event);
+        } else if (ChannelTypes.ORDERBOOK.equals(channelType)) {
+            OrderBookEvent event = jsonToOrderBookEvent(srcEvent);
+            event.setChannelId(channelId);
+            onOrderBook(event);
+        } else if (ChannelTypes.TRADE.equals(channelType)) {
+            TradeEvent event = jsonToTradeEvent(srcEvent);
+            event.setChannelId(channelId);
+            onTrade(event);
+        } else if (ChannelTypes.CANDLE.equals(channelType)) {
+            CandleEvent event = jsonToCandleEvent(srcEvent);
+            event.setChannelId(channelId);
+            onCandle(event);
+        }
+    }
+
+    private TickerEvent jsonToTickerEvent(JsonArray json) {
         TickerEvent event = new TickerEvent();
-        if (json.has("channelId")) {
-            event.setChannelId(json.get("channelId").getAsString());
-        }
-        if (json.has("last")) {
-            event.setLast(json.get("last").getAsBigDecimal());
-        }
-        if (json.has("high")) {
-            event.setHigh(json.get("high").getAsBigDecimal());
-        }
-        if (json.has("low")) {
-            event.setLow(json.get("low").getAsBigDecimal());
-        }
-        if (json.has("volume")) {
-            event.setVolume(json.get("volume").getAsBigDecimal());
-        }
-        if (json.has("vwap")) {
-            event.setVwap(json.get("vwap").getAsBigDecimal());
-        }
-        if (json.has("maxBid")) {
-            event.setMaxBid(json.get("maxBid").getAsBigDecimal());
-        }
-        if (json.has("minAsk")) {
-            event.setMinAsk(json.get("minAsk").getAsBigDecimal());
-        }
-        if (json.has("bestBid")) {
-            event.setBestBid(json.get("bestBid").getAsBigDecimal());
-        }
-        if (json.has("bestAsk")) {
-            event.setBestAsk(json.get("bestAsk").getAsBigDecimal());
-        }
+        event.setChanged(json.get(0).getAsLong());
+        event.setLast(json.get(1).getAsBigDecimal());
+        event.setHigh(json.get(2).getAsBigDecimal());
+        event.setLow(json.get(3).getAsBigDecimal());
+        event.setVolume(json.get(4).getAsBigDecimal());
+        event.setVwap(json.get(5).getAsBigDecimal());
+        event.setMaxBid(json.get(6).getAsBigDecimal());
+        event.setMinAsk(json.get(7).getAsBigDecimal());
+        event.setBestBid(json.get(8).getAsBigDecimal());
+        event.setBestAsk(json.get(8).getAsBigDecimal());
         return event;
     }
 
-    private OrderBookEvent jsonToOrderBookEvent(JsonObject json) {
+    private OrderBookEvent jsonToOrderBookEvent(JsonArray json) {
         OrderBookEvent event = new OrderBookEvent();
-
-        if (json.has("channelId")) {
-            event.setChannelId(json.get("channelId").getAsString());
-        }
-        if (json.has("price")) {
-            event.setPrice(json.get("price").getAsBigDecimal());
-        }
-        if (json.has("quantity")) {
-            event.setQuantity(json.get("quantity").getAsBigDecimal());
-        }
+        event.setChanged(json.get(0).getAsLong());
+        event.setPrice(json.get(1).getAsBigDecimal());
+        event.setQuantity(json.get(2).getAsBigDecimal());
         return event;
     }
 
-    private OrderBookRawEvent jsonToOrderBookRawEvent(JsonObject json) {
+    private OrderBookRawEvent jsonToOrderBookRawEvent(JsonArray json) {
         OrderBookRawEvent event = new OrderBookRawEvent();
-        if (json.has("channelId")) {
-            event.setChannelId(json.get("channelId").getAsString());
-        }
-        if (json.has("id")) {
-            event.setId(json.get("id").getAsLong());
-        }
-        if (json.has("price")) {
-            event.setPrice(json.get("price").getAsBigDecimal());
-        }
-        if (json.has("quantity")) {
-            event.setQuantity(json.get("quantity").getAsBigDecimal());
-        }
+        event.setId(json.get(0).getAsLong());
+        event.setChanged(json.get(1).getAsLong());
+        event.setPrice(json.get(2).getAsBigDecimal());
+        event.setQuantity(json.get(3).getAsBigDecimal());
         return event;
     }
 
-    private TradeEvent jsonToTradeEvent(JsonObject json) {
+    private TradeEvent jsonToTradeEvent(JsonArray json) {
         TradeEvent event = new TradeEvent();
-        if (json.has("channelId")) {
-            event.setChannelId(json.get("channelId").getAsString());
-        }
-        if (json.has("id")) {
-            event.setId(json.get("id").getAsLong());
-        }
-        if (json.has("timestamp")) {
-            event.setTimestamp(json.get("timestamp").getAsLong());
-        }
-        if (json.has("price")) {
-            event.setPrice(json.get("price").getAsBigDecimal());
-        }
-        if (json.has("quantity")) {
-            event.setQuantity(json.get("quantity").getAsBigDecimal());
-        }
+        event.setId(json.get(0).getAsLong());
+        event.setTimestamp(json.get(1).getAsLong());
+        event.setPrice(json.get(2).getAsBigDecimal());
+        event.setQuantity(json.get(3).getAsBigDecimal());
         return event;
     }
 
-    private CandleEvent jsonToCandleEvent(JsonObject json) {
+    private CandleEvent jsonToCandleEvent(JsonArray json) {
         CandleEvent event = new CandleEvent();
-        if (json.has("channelId")) {
-            event.setChannelId(json.get("channelId").getAsString());
-        }
-        if (json.has("t")) {
-            event.setT(json.get("t").getAsLong());
-        }
-        if (json.has("o")) {
-            event.setO(json.get("o").getAsBigDecimal());
-        }
-        if (json.has("c")) {
-            event.setC(json.get("c").getAsBigDecimal());
-        }
-        if (json.has("h")) {
-            event.setH(json.get("h").getAsBigDecimal());
-        }
-        if (json.has("l")) {
-            event.setL(json.get("l").getAsBigDecimal());
-        }
-        if (json.has("v")) {
-            event.setV(json.get("v").getAsBigDecimal());
-        }
-        if (json.has("q")) {
-            event.setQ(json.get("q").getAsBigDecimal());
-        }
+        event.setT(json.get(0).getAsLong());
+        event.setO(json.get(1).getAsBigDecimal());
+        event.setC(json.get(2).getAsBigDecimal());
+        event.setH(json.get(3).getAsBigDecimal());
+        event.setL(json.get(4).getAsBigDecimal());
+        event.setV(json.get(5).getAsBigDecimal());
+        event.setQ(json.get(6).getAsBigDecimal());
         return event;
     }
 }

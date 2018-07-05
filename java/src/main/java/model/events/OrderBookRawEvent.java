@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public class OrderBookRawEvent {
     private String channelId;
     private Long id;
+    private Long changed;
     private BigDecimal price;
     private BigDecimal quantity;
 
@@ -22,6 +23,14 @@ public class OrderBookRawEvent {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getChanged() {
+        return changed;
+    }
+
+    public void setChanged(Long changed) {
+        this.changed = changed;
     }
 
     public BigDecimal getPrice() {
@@ -45,6 +54,7 @@ public class OrderBookRawEvent {
         return "OrderBookRaw{" +
                 "channelId='" + channelId + '\'' +
                 ", id=" + id +
+                ", changed=" + changed +
                 ", price=" + price +
                 ", quantity=" + quantity +
                 '}';

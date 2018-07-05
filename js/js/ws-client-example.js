@@ -37,28 +37,28 @@ socket.onmessage = function(event) {
         if(msg[0] === "s") {
             //subscribe action
             onSubscribe(msg);
-            var events = extractEventsFromSubscribe(msg[1]);
-            if(msg[1][0] === "t") {
+            var events = extractEventsFromSubscribe(msg[2]);
+            if(msg[2][0] === "t") {
                 //ticker
                 events.forEach(function(event){
                     onTicker(event)
                 })
-            } else if (msg[1][0] === "r") {
+            } else if (msg[2][0] === "r") {
                 //orderbookraw
                 events.forEach(function(event){
                     onOrderBookRaw(event)
                 })
-            } else if (msg[1][0] === "o") {
+            } else if (msg[2][0] === "o") {
                 //orderbook
                 events.forEach(function(event){
                     onOrderBook(event)
                 })
-            } else if (msg[1][0] === "d") {
+            } else if (msg[2][0] === "d") {
                 //trade
                 events.forEach(function(event){
                     onTrade(event)
                 })
-            } else if (msg[1][0] === "c") {
+            } else if (msg[2][0] === "c") {
                 //candle
                 events.forEach(function(event){
                     onCandle(event)
@@ -134,18 +134,18 @@ function onCandle(event) {
 
 
 function onError(msg) {
-    console.log("Error: " + "\ntext: " + msg[1][0] + "\ncode: " + msg[1][1] + "\nmessage: " + msg[1][2])
+    console.log("Error: " + "\ntext: " + msg[2][0] + "\ncode: " + msg[2][1] + "\nmessage: " + msg[2][2])
     //here you can make your trade decision
 }
 
 function onSubscribe(msg) {
 
-    console.log("channel subscribed: " + channelFromCode(msg[1][0]) + '_' + msg[1][1])
+    console.log("channel subscribed: " + channelFromCode(msg[2][0]) + '_' + msg[2][1])
     //here you can make your trade decision
 }
 
 function onUnsubscribe(msg) {
-    console.log("channel unsubscribed: " + channelFromCode(msg[1][0]) + '_' + msg[1][1])
+    console.log("channel unsubscribed: " + channelFromCode(msg[2][0]) + '_' + msg[2][1])
     //here you can make your trade decision
 }
 

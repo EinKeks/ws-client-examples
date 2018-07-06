@@ -13,7 +13,6 @@ namespace ws_client
     class WsClientExample : IDisposable
     {
         private WebSocket ws;
-        private ConcurrentDictionary<string, string> subscribedChannels = new ConcurrentDictionary<string, string>();
 
         public WsClientExample(String url)
         {
@@ -49,7 +48,7 @@ namespace ws_client
         {
             if (!e.Data.Equals(""))
             {
-                processMessage(e.Data);
+                ProcessMessage(e.Data);
             }
         }
 
@@ -109,27 +108,46 @@ namespace ws_client
         private void WsClient_OnSubscribe(String channelId)
         {
             Console.WriteLine("Channel subscribed: " + channelId);
-            subscribedChannels.TryAdd(channelId, channelId);
             //here you can make your trade decision
         }
 
         private void WsClient_OnUnsubscribe(String channelId)
         {
             Console.WriteLine("Channel unSubscribed: " + channelId);
-            string item;
-            subscribedChannels.TryRemove(channelId,out item);
             //here you can make your trade decision
         }
 
         private void WsClient_Subscribe(Params param)
         {
-            JObject query = new JObject(new JProperty("Subscribe", content: JObject.FromObject(param)));
-            ws.Send(query.ToString());
+            String query = "";
+
+            if (param is TickerParams)
+            {
+                query = new JArray(new JValue(""), new JValue("s"), new JValue("t"), new JValue(param.symbol), new JValue(((TickerParams)param).frequency)).ToString();
+            }
+            else if (param is OrderBookParams)
+            {
+                query = new JArray(new JValue(""), new JValue("s"), new JValue("o"), new JValue(param.symbol), new JValue(((OrderBookParams)param).depth)).ToString();
+            }
+            else if (param is OrderBookRawParams)
+            {
+                query = new JArray(new JValue(""), new JValue("s"), new JValue("r"), new JValue(param.symbol), new JValue(((OrderBookRawParams)param).depth)).ToString();
+            }
+            else if (param is TradeParams)
+            {
+                query = new JArray(new JValue(""), new JValue("s"), new JValue("d"), new JValue(param.symbol)).ToString();
+            }
+            else if (param is CandleRawParams)
+            {
+                query = new JArray(new JValue(""), new JValue("s"), new JValue("c"), new JValue(param.symbol), new JValue(((CandleRawParams)param).interval)).ToString();
+            }
+            //JObject query = new JObject(new JProperty("Subscribe", content: JObject.FromObject(param)));
+            ws.Send(query);
         }
 
-        private void WsClient_Unsubscribe(String channelId)
+        private void WsClient_Unsubscribe(String currencyPair, String channelCode)
         {
-            JObject query = new JObject(new JProperty("Unsubscribe", content: new JObject(new JProperty("channelId", content: channelId))));
+            JArray query = new JArray(new JValue(""), new JValue("u"), new JValue(channelCode), new JValue(currencyPair));
             ws.Send(query.ToString());
         }
 
@@ -137,233 +155,210 @@ namespace ws_client
         {
             if (ws != null)
             {
-                foreach(var chid in subscribedChannels.Values)
-                {
-                    WsClient_Unsubscribe(chid);
-                }
+                WsClient_Unsubscribe("BTC/USD", "t");
+                WsClient_Unsubscribe("BTC/USD", "r");
+                WsClient_Unsubscribe("BTC/USD", "o");
+                WsClient_Unsubscribe("BTC/USD", "d");
+                WsClient_Unsubscribe("BTC/USD", "c");
                 Thread.Sleep(2000);
                 ws.Close();
             }
         }
 
-        private void processMessage(String receivedData)
+        private void ProcessMessage(String receivedData)
         {
-            dynamic msg = JObject.Parse(receivedData);
-            if (msg.ContainsKey("Error"))
+            JArray msg = JArray.Parse(receivedData);
+            IJEnumerable<JToken> values = msg.Values();
+            JToken operation = msg.First;
+            if (operation.ToObject<String>().Equals("s"))
             {
-                String message = msg.Error;
-                String badQuery = msg.text;
-                WsClient_OnError(message, badQuery);
+                //JEnumerable<JToken> body = msg.Next.Next;
+                WsClient_OnSubscribe(ChannelCodeToType(msg.Last.First.ToObject<String>()) + "_" + msg.Last.First.Next.ToObject<String>());
+                ProcessEvents(msg.Last);
+                //subscribe notification
 
-            }
-            else if (msg.ContainsKey("operation"))
+            } else if (operation.ToObject<String>().Equals("u"))
             {
-                String channelId = msg.channelId;
-                String type = channelId.Split('_')[1];
-                dynamic operation = msg.operation;
-                if (operation.ContainsKey("Subscribe"))
+                //unsubbscribe notification
+                WsClient_OnUnsubscribe(ChannelCodeToType(msg.Last.First.ToObject<String>()) + "_" + msg.Last.First.Next.ToObject<String>());
+
+            } else if (operation.ToObject<String>().Equals("e"))
+            {
+                //error notification
+                Console.WriteLine("Error: " + msg.Last.Last.ToObject<String>());
+            } else
+            {
+                //events notification
+                ProcessEvents(msg.Last);
+            }
+        }
+
+        private string ChannelTypeToCode(string type)
+        {
+            string result = "";
+            if (type.Equals("ticker"))
+            {
+                result = "t";
+            } else if (type.Equals("orderbookraw"))
+            {
+                result = "r";
+            } else if (type.Equals("orderbook"))
+            {
+                result = "o";
+            } else if (type.Equals("trade"))
+            {
+                result = "d";
+            } else if (type.Equals("candle"))
+            {
+                result = "c";
+            }
+            return result;
+        }
+
+        private string ChannelCodeToType(string code)
+        {
+            string result = "";
+            if (code.Equals("t"))
+            {
+                result = "ticker";
+            } else if (code.Equals("r"))
+            {
+                result = "orderbookraw";
+            } else if (code.Equals("o"))
+            {
+                result = "orderbook";
+            } else if (code.Equals("d"))
+            {
+                result = "trade";
+            } else if (code.Equals("c"))
+            {
+                result = "candle";
+            }
+            return result;
+        }
+
+        private void ProcessEvents(JToken values)
+        {
+            JToken channelCode = values.First;
+            var channelType = ChannelCodeToType(channelCode.ToObject<String>());
+            var currencyPair = channelCode.Next.ToObject<String>();
+            var channelId = channelType + "_" + currencyPair;
+
+
+            foreach (JToken item in values.Children())
+            {
+                if(item.Type.Equals(JTokenType.Array))
                 {
-                    WsClient_OnSubscribe(channelId);
-                    if (msg.ContainsKey("data"))
+                    if (channelType.Equals(ChannelTypes.TICKER))
                     {
-                        foreach (var item in msg.data)
-                        {
-                            if (type.Equals(ChannelTypes.ORDERBOOK))
-                            {
-                                OrderBookEvent orderbookEvent = jsonToOrderBookEvent(item);
-                                orderbookEvent.ChannelId = channelId;
-                                WsClient_OnOrderBook(orderbookEvent);
-                            }
-                            else if(type.Equals(ChannelTypes.ORDERBOOKRAW))
-                            {
-                                OrderBookRawEvent orderBookRawEvent = jsonToOrderBookRawEvent(item);
-                                orderBookRawEvent.ChannelId = channelId;
-                                WsClient_OnOrderBookRaw(orderBookRawEvent);
-                            }
-                            else if (type.Equals(ChannelTypes.CANDLE))
-                            {
-                                CandleEvent candleRawEvent = jsonToCandleEvent(item);
-                                candleRawEvent.ChannelId = channelId;
-                                WsClient_OnCandleRaw(candleRawEvent);
-                            }
-                        }
+                        TickerEvent e = jsonToTickerEvent(item);
+                        e.ChannelId = channelId;
+                        WsClient_OnTicker(e);
+                    } else if (channelType.Equals(ChannelTypes.ORDERBOOK))
+                    {
+                        OrderBookEvent e = jsonToOrderBookEvent(item);
+                        e.ChannelId = channelId;
+                        WsClient_OnOrderBook(e);
+                    }  else if (channelType.Equals(ChannelTypes.ORDERBOOKRAW))
+                    {
+                        OrderBookRawEvent e = jsonToOrderBookRawEvent(item);
+                        e.ChannelId = channelId;
+                        WsClient_OnOrderBookRaw(e);
+                    } else if (channelType.Equals(ChannelTypes.TRADE))
+                    {
+                        TradeEvent e = jsonToTradeEvent(item);
+                        e.ChannelId = channelId;
+                        WsClient_OnTrade(e);
+                    } else if (channelType.Equals(ChannelTypes.CANDLE))
+                    {
+                        CandleEvent e = jsonToCandleEvent(item);
+                        e.ChannelId = channelId;
+                        WsClient_OnCandleRaw(e);
                     }
-                }
-                else if (operation.ContainsKey("Unsubscribe"))
-                {
-                    WsClient_OnUnsubscribe(channelId);
-                } else
-                {
-                    throw new NotImplementedException();
-                }
-            }
-            else
-            {
-                String channelId = msg.channelId;
-                String type = channelId.Split('_')[1];
-                if(type.Equals(ChannelTypes.TICKER))
-                {
-                    WsClient_OnTicker(jsonToTickerEvent(msg));
-                }
-                else if(type.Equals(ChannelTypes.ORDERBOOK))
-                {
-                    WsClient_OnOrderBook(jsonToOrderBookEvent(msg));
-                }
-                else if(type.Equals(ChannelTypes.ORDERBOOKRAW))
-                {
-                    WsClient_OnOrderBookRaw(jsonToOrderBookRawEvent(msg));
-                }
-                else if(type.Equals(ChannelTypes.TRADE))
-                {
-                    WsClient_OnTrade(jsonToTradeEvent(msg));
-                }
-                else if(type.Equals(ChannelTypes.CANDLE))
-                {
-                    WsClient_OnCandleRaw(jsonToCandleEvent(msg));
+
                 }
             }
         }
 
-        private TickerEvent jsonToTickerEvent(dynamic json)
+        private TickerEvent jsonToTickerEvent(JToken json)
         {
             TickerEvent result = new TickerEvent();
-            if (json.ContainsKey("channelId"))
-            {
-                result.ChannelId = json.channelId;
-            }
-            if (json.ContainsKey("last"))
-            {
-                result.Last = json.last;
-            }
-            if (json.ContainsKey("high"))
-            {
-                result.High = json.high;
-            }
-            if (json.ContainsKey("low"))
-            {
-                result.Low = json.low;
-            }
-            if (json.ContainsKey("volume"))
-            {
-                result.Volume = json.volume;
-            }
-            if (json.ContainsKey("vwap"))
-            {
-                result.Vwap = json.vwap;
-            }
-            if (json.ContainsKey("maxBid"))
-            {
-                result.MaxBid = json.maxBid;
-            }
-            if (json.ContainsKey("minAsk"))
-            {
-                result.MinAsk = json.minAsk;
-            }
-            if (json.ContainsKey("bestBid"))
-            {
-                result.BestBid = json.bestBid;
-            }
-            if (json.ContainsKey("bestAsk"))
-            {
-                result.BestAsk = json.bestAsk;
-            }
-
+            JToken changed = json.First;
+            result.Changed = changed.ToObject<long>();
+            JToken last = changed.Next;
+            result.Last = last.ToObject<decimal?>();
+            JToken high = last.Next;
+            result.High = high.ToObject<decimal?>();
+            JToken low = high.Next;
+            result.Low = low.ToObject<decimal?>();
+            JToken volume = low.Next;
+            result.Volume = volume.ToObject<decimal?>();
+            JToken vwap = volume.Next;
+            result.Vwap = vwap.ToObject<decimal?>();
+            JToken maxBid = vwap.Next;
+            result.MaxBid = maxBid.ToObject<decimal?>();
+            JToken minAsk = maxBid.Next;
+            result.MinAsk = minAsk.ToObject<decimal?>();
+            JToken bestBid = minAsk.Next;
+            result.BestBid = bestBid.ToObject<decimal?>();
+            JToken bestAsk = bestBid.Next;
+            result.BestAsk = bestAsk.ToObject<decimal?>();
             return result;
         }
-        private OrderBookEvent jsonToOrderBookEvent(dynamic json)
+        private OrderBookEvent jsonToOrderBookEvent(JToken json)
         {
             OrderBookEvent result = new OrderBookEvent();
-            if (json.ContainsKey("channelId"))
-            {
-                result.ChannelId = json.channelId;
-            }
-            if (json.ContainsKey("price"))
-            {
-                result.Price = json.price;
-            }
-            if (json.ContainsKey("quantity"))
-            {
-                result.Quantity = json.quantity;
-            }
+            JToken changed = json.First;
+            result.Changed = changed.ToObject<long>();
+            JToken price = changed.Next;
+            result.Price = price.ToObject<decimal>();
+            JToken quantity = price.Next;
+            result.Quantity = quantity.ToObject<decimal>();
             return result;
         }
-        private OrderBookRawEvent jsonToOrderBookRawEvent(dynamic json)
+        private OrderBookRawEvent jsonToOrderBookRawEvent(JToken json)
         {
             OrderBookRawEvent result = new OrderBookRawEvent();
-            if (json.ContainsKey("channelId"))
-            {
-                result.ChannelId = json.channelId;
-            }
-            if (json.ContainsKey("id"))
-            {
-                result.Id = json.id;
-            }
-            if (json.ContainsKey("price"))
-            {
-                result.Price = json.price;
-            }
-            if (json.ContainsKey("quantity"))
-            {
-                result.Quantity = json.quantity;
-            }
+            JToken id = json.First;
+            result.Id = id.ToObject<long>();
+            JToken changed = id.Next;
+            result.Changed = changed.ToObject<long>();
+            JToken price = changed.Next;
+            result.Price = price.ToObject<decimal>();
+            JToken quantity = price.Next;
+            result.Quantity = quantity.ToObject<decimal>();
             return result;
         }
-        private TradeEvent jsonToTradeEvent(dynamic json)
+        private TradeEvent jsonToTradeEvent(JToken json)
         {
             TradeEvent result = new TradeEvent();
-            if (json.ContainsKey("channelId"))
-            {
-                result.ChannelId = json.channelId;
-            }
-            if (json.ContainsKey("timestamp"))
-            {
-                result.Timestamp = json.timestamp;
-            }
-            if (json.ContainsKey("price"))
-            {
-                result.Price = json.price;
-            }
-            if (json.ContainsKey("quantity"))
-            {
-                result.Quantity = json.quantity;
-            }
+            JToken id = json.First;
+            result.Id = id.ToObject<long>();
+            JToken timestamp = id.Next;
+            result.Timestamp = timestamp.ToObject<long>();
+            JToken price = timestamp.Next;
+            result.Price = price.ToObject<decimal>();
+            JToken quantity = price.Next;
+            result.Quantity = quantity.ToObject<decimal>();
             return result;
         }
-        private CandleEvent jsonToCandleEvent(dynamic json)
+        private CandleEvent jsonToCandleEvent(JToken json)
         {
             CandleEvent result = new CandleEvent();
-            if (json.ContainsKey("channelId"))
-            {
-                result.ChannelId = json.channelId;
-            }
-            if (json.ContainsKey("t"))
-            {
-                result.T = json.t;
-            }
-            if (json.ContainsKey("o"))
-            {
-                result.O = json.o;
-            }
-            if (json.ContainsKey("c"))
-            {
-                result.C = json.c;
-            }
-            if (json.ContainsKey("h"))
-            {
-                result.H = json.h;
-            }
-            if (json.ContainsKey("l"))
-            {
-                result.L = json.l;
-            }
-            if (json.ContainsKey("v"))
-            {
-                result.V = json.v;
-            }
-            if (json.ContainsKey("q"))
-            {
-                result.Q = json.q;
-            }
+            JToken t = json.First;
+            result.T = t.ToObject<long>();
+            JToken o = t.Next;
+            result.O = o.ToObject<decimal>();
+            JToken c = o.Next;
+            result.C = c.ToObject<decimal>();
+            JToken h = c.Next;
+            result.H = h.ToObject<decimal>();
+            JToken l = h.Next;
+            result.L = l.ToObject<decimal>();
+            JToken v = l.Next;
+            result.V = v.ToObject<decimal>();
+            JToken q = v.Next;
+            result.Q = q.ToObject<decimal>();
             return result;
         }
     }

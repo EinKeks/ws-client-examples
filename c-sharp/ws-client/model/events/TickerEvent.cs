@@ -3,6 +3,7 @@
     class TickerEvent
     {
         public string ChannelId { get; set; }
+        public long Changed { get; set; }
         public decimal? Last { get; set; }
         public decimal? High { get; set; }
         public decimal? Low { get; set; }
@@ -16,6 +17,7 @@
         public override string ToString() => base.ToString() +
             ": {" +
                 "channelId='" + ChannelId + '\'' +
+                ", changed=" + Changed +
                 ", last=" + Last +
                 ", high=" + High +
                 ", low=" + Low +

@@ -51,11 +51,12 @@ public class WsClientExample {
             subscribeTicker("BTC/USD", null);
             subscribeTicker("BTC/USD", 10f);
             subscribeOrderBook("BTC/USD", 1);
-            unsubscribeOrderBook("BTC/USD");
             subscribeOrderBook("BTC/USD", 10);
             subscribeOrderBookRaw("BTC/USD", 10);
+            unsubscribeOrderBook("BTC/USD");
             subscribeTrade("BTC/USD");
             subscribeCandle("BTC/USD", "1m");
+
 
         } catch (WebSocketException e) {
             e.printStackTrace();
@@ -179,7 +180,7 @@ public class WsClientExample {
             processEvents(values);
         } else if (values.get(0).getAsString().equals("u")) {
             //unsubscribe channel
-            onSubscribe(ChannelCodes.channelCodesToTypes(values.get(2).getAsJsonArray().get(0).getAsString()) + "_" + values.get(2).getAsJsonArray().get(1).getAsString());
+            onUnsubscribe(ChannelCodes.channelCodesToTypes(values.get(2).getAsJsonArray().get(0).getAsString()) + "_" + values.get(2).getAsJsonArray().get(1).getAsString());
         } else if(values.get(0).getAsString().equals("e")) {
             onError(values.get(1).getAsJsonArray().get(0).getAsString(),values.get(1).getAsJsonArray().get(2).getAsString());
             //error

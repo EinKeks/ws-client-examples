@@ -49,7 +49,7 @@ public class CustomSerializers {
         JsonArray result = new JsonArray();
         result.add((String)null);
         result.add("s");
-        result.add("d");
+        result.add("c");
         result.add(src.getSymbol());
         result.add(src.getInterval());
         return result;

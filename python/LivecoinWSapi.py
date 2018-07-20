@@ -6,27 +6,24 @@ import ssl
 
 NEED_TOP_ORDERS = 5
 
+currentMessageId = 0
 channels = dict()
 orderbooks = dict()
 orderbooksraw = dict()
 ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE}) # python issue with comodo certs
-#ws.connect("wss://ws.api.livecoin.net/ws/beta")
-ws.connect("ws://localhost:9160/ws/beta")
+ws.connect("wss://ws.api.livecoin.net/ws/beta2")
 
-def onNewTicker(symbol, last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk):
+def onNewTicker(symbol, timestamp, last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk):
   #here you can make your trade decision
-  print ("ticker: %s/%f/%f/%f/%f/%f/%f/%f/%f/%f" % (symbol, last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk))
+  print ("ticker as of %s: %s/%f/%f/%f/%f/%f/%f/%f/%f/%f" % (
+  datetime.datetime.fromtimestamp(timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+    symbol, last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk))
 
 def onNewCandle(symbol, t, o, c, h, l, v, q):
   print("candle: %s/%s/%f/%f/%f/%f/%f/%f" % (
     symbol,
     datetime.datetime.fromtimestamp(t/1000).strftime('%Y-%m-%d %H:%M:%S'),
-    o,
-    c,
-    h,
-    l,
-    v,
-    q))
+      o, c, h, l, v, q))
 
 def onNewTrade(symbol, id, timestamp, price, quantity, isBuy):
   print ("trade: %s, id=%d time=%s type=%s price=%f quantity=%f" % (
@@ -80,66 +77,59 @@ def onOrderbookRawChange(symbol, timestamp, id, price, quantity, isBid, initial=
     slots[id] = (price,quantity)
   printOrderBookRaw(symbol)
 
-def onUnsubscribe(channelType, symbol):
-  print("unsibscribed from %s for %s" % (channelType, symbol))
+def onUnsubscribe(channelType, symbol, token):
+  print("unsibscribed from %s for %s (answer for request with token %s)" % (channelType, symbol, token))
 
 def toWs(*arg):
-  ws.send(json.dumps(list(arg)))
+  msg = json.dumps(list(arg))
+  print("sending '"+msg+"'")
+  ws.send(msg)
 
-def subscribeTicker(symbol, frequency=None):
-  if None == frequency:
-    toWs("s", "t", symbol)
-  else:
-    toWs("s", "t", symbol, frequency)
+def subscribeTicker(symbol, token=None, frequency=None):
+  toWs(token, "s", "t", symbol, frequency)
 
-def unsubscribeTicker(symbol):
-  toWs("u", "t", symbol)
+def unsubscribeTicker(symbol, token=None):
+  toWs(token, "u", "t", symbol)
 
-def subscribeOrderbook(symbol, depth=None):
-  if None == depth:
-    toWs("s", "o", symbol)
-  else:
-    toWs("s", "o", symbol, depth)
+def subscribeOrderbook(symbol, token=None, depth=None):
+  toWs(token, "s", "o", symbol, depth)
 
-def unsubscribeOrderbook(symbol):
-  toWs("u", "o", symbol)
+def unsubscribeOrderbook(symbol, token=None):
+  toWs(token, "u", "o", symbol)
 
-def subscribeOrderbookRaw(symbol, depth=None):
-  if None == depth:
-    toWs("s", "r", symbol)
-  else:
-    toWs("s", "r", symbol, depth)
+def subscribeOrderbookRaw(symbol, token=None, depth=None):
+  toWs(token, "s", "r", symbol, depth)
 
-def unsubscribeOrderbookRaw(symbol):
-  toWs("u", "r", symbol)
+def unsubscribeOrderbookRaw(symbol, token=None):
+  toWs(token, "u", "r", symbol)
 
-def subscribeTrades(symbol):
-  toWs("s", "d", symbol)
+def subscribeTrades(symbol, token=None):
+  toWs(token, "s", "d", symbol)
 
-def unsubscribeTrades(symbol):
-  toWs("u", "d", symbol)
+def unsubscribeTrades(symbol, token=None):
+  toWs(token, "u", "d", symbol)
 
-def subscribeCandle(symbol, interval, historyDepth=None):
-  if None == historyDepth:
-    toWs("s", "c", symbol, interval)
-  else:
-    toWs("s", "c", symbol, interval, historyDepth)
+def subscribeCandle(symbol, interval, token=None, historyDepth=None):
+  toWs(token, "s", "c", symbol, interval, historyDepth)
 
-def unsubscribeCandleRaw(symbol):
-  toWs("u", "c", symbol)
+def unsubscribeCandleRaw(symbol, token=None):
+  toWs(token, "u",  "c", symbol)
 
 def NullableToFloat(num):
   if None == num:
     return float('nan')
   return float(num)
 
-def handleIn(msg, isSnapshot = False):
+def handleIn(msg, isSnapshot = False, token=None):
   channelType = msg.pop(0)
   if "s" == channelType:
-    handleIn(msg[0], isSnapshot = True) # format of snapshot is the same as notification format
+    token = msg.pop(0)
+    print ("Subscribed to something (request token = %s)" % (token))
+    handleIn(msg[0], isSnapshot = True, token = token) # format of snapshot is the same as notification format
   elif "u" == channelType:
+    token = msg.pop(0)
     [type, symbol] = msg[0]
-    onUnsubscribe(type, symbol)
+    onUnsubscribe(type, symbol, token)
   elif "r" == channelType: #raw orderbook
     symbol = msg.pop(0)
     if isSnapshot:
@@ -150,8 +140,7 @@ def handleIn(msg, isSnapshot = False):
     symbol = msg.pop(0)
     if isSnapshot:
       orderbooks[symbol] = {"asks": {}, "bids": {}}  # clear it
-    for [price, quantity] in msg:
-      timestamp = 0
+    for [timestamp, price, quantity] in msg:
       onOrderbookChange(symbol, timestamp, abs(price), quantity, isBid=(price > 0), initial=isSnapshot)
   elif "d" == channelType: #trades
     symbol = msg.pop(0)
@@ -163,18 +152,31 @@ def handleIn(msg, isSnapshot = False):
       onNewCandle(symbol, t, o, c, h, l, v, q)
   elif "t" == channelType: #ticker
     symbol = msg.pop(0)
-    for [last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk] in msg:
+    for [timestamp, last, high, low, volume, vwap, maxBid, minAsk, bestBid, bestAsk] in msg:
       # all the values can be null (for new pairs without any orders for example)
-      onNewTicker(symbol, NullableToFloat(last), NullableToFloat(high), NullableToFloat(low), NullableToFloat(volume),
+      onNewTicker(symbol, timestamp, NullableToFloat(last), NullableToFloat(high), NullableToFloat(low), NullableToFloat(volume),
                   NullableToFloat(vwap), NullableToFloat(maxBid), NullableToFloat(minAsk), NullableToFloat(bestBid),
                   NullableToFloat(bestAsk))
+  elif "e" == channelType: #error
+    [originalMsg, errorCode, errorText] = msg[0]
+    token = None
+    try:
+      out = json.loads(originalMsg)
+      token = out[0]
+    except:
+      print("error extracting token")
+    print("Error #%i (%s) for message with token '%s'" % (errorCode, errorText, token))
 
 
-subscribeOrderbookRaw('BTC/USD', NEED_TOP_ORDERS) # only NEED_TOP_ORDERS bids and asks in snapshot
-subscribeTicker('BTC/USD', 2) #do not send me tickers too often (only one time in two seconds)
-subscribeOrderbook('BTC/USD', NEED_TOP_ORDERS) # only NEED_TOP_ORDERS bids and asks positions in snapshot
+
+
+subscribeOrderbookRaw('BTC/USD', token="token1", depth = NEED_TOP_ORDERS) # only NEED_TOP_ORDERS bids and asks in snapshot
+subscribeOrderbookRaw('ETH/USD', token="token5") # only NEED_TOP_ORDERS bids and asks in snapshot
+unsubscribeOrderbook("BTC/USD", token="token2") #for error example
+subscribeTicker('BTC/USD', frequency = 2) #do not send me tickers too often (only one time in two seconds)
+subscribeOrderbook('BTC/USD', depth = NEED_TOP_ORDERS) # only NEED_TOP_ORDERS bids and asks positions in snapshot
 subscribeTrades('BTC/USD')
-subscribeCandle('BTC/USD', '1m', 10) # and give me 10 last candles
+subscribeCandle('BTC/USD', interval = '1m', historyDepth = 10) # and give me 10 last candles
 
 startedat = time.time()
 eplased = 0

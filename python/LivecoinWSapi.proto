@@ -1,40 +1,60 @@
 syntax = "proto2";
 package protobuf.ws;
 
+// Subscription to ticker - public api
 message SubscribeTickerChannelRequest {
     // SUBSCRIBE_TICKER
     required string currency_pair = 1;
+
+    // send rate will be limited to one message per frequency seconds. Minimum frequency is 0.1
+    // if omitted, rate is not limited (you will get all changes just in time)
     optional float frequency = 2;
 }
 
+// Subscription to orderbook changes - public api
 message SubscribeOrderBookRawChannelRequest {
     // SUBSCRIBE_ORDER_BOOK_RAW
     required string currency_pair = 1;
+
+    // depth of orderbook, which will be sent in an subscription answer
+    // 0 meens 'do not send orderbook snapshot'
+    // if omitted, full orderbook snaphot will be sent
     optional int32 depth = 2;
 }
 
+// Subscription to orderbook (grouped by price) changes - public api
 message SubscribeOrderBookChannelRequest {
     // SUBSCRIBE_ORDER_BOOK
     required string currency_pair = 1;
+
+    // depth of orderbook, which will be sent in an subscription answer
+    // 0 meens 'do not send orderbook snapshot'
+    // if omitted, full orderbook snaphot will be sent
     optional int32 depth = 2;
 }
 
+// Subscription to trades - public api
 message SubscribeTradeChannelRequest {
     // SUBSCRIBE_TRADE
     required string currency_pair = 1;
 }
 
 
+// Subscription to candles (OHLCV) - public api
 message SubscribeCandleChannelRequest {
     // SUBSCRIBE_CANDLE
     enum CandleInterval {
-        CANDLE_1_MINUTE = 1;
+        CANDLE_1_MINUTE = 1; // yes, onle 1-minute candles for now :(
     }
     required string currency_pair = 1;
     required CandleInterval interval = 2;
+
+    // amount of historical candles to send in answer, 240 is maximum value
+    // default is not to send historical candles at all
     optional int32 depth = 3 [default=0];
 }
 
+// Unsubscribe from channel
 message UnsubscribeRequest {
     // UNSUBSCRIBE
     enum ChannelType {
@@ -53,17 +73,19 @@ message RequestExpired {
     required int32 ttl = 2;
 }
 
+// Login request - private api
 message LoginRequest {
     // LOGIN
     required RequestExpired expire_control = 1;
     required string api_key = 2;
 }
 
+// Put limit order request - private api, you have to be logged in
 message PutLimitOrderRequest {
     // PUT_LIMIT_ORDER
     enum OrderType {
-        BID = 1;
-        ASK = 2;
+        BID = 1; // if you want to buy
+        ASK = 2; // if you want to sell
     }
     required RequestExpired expire_control = 1;
     required string currency_pair = 2;
@@ -76,6 +98,8 @@ message CancelLimitOrderRequest {
     // CANCEL_LIMIT_ORDER
     required RequestExpired expire_control = 1;
     required string currency_pair = 2;
+
+    // id of the order to cancel
     required int64 id = 3;
 }
 
@@ -105,14 +129,20 @@ message OrderBookRawEvent {
     }
     required OrderType order_type = 1 [default = BID];
     required int64 id = 2;
+
+    // timestamp of the last order's change
     required int64 timestamp = 3;
     optional string price = 4;
+
+    // zero when order is removed from orderbook (cancelled or traded)
     required string quantity = 5;
 }
 
 message OrderBookRawChannelSubscribedResponse {
     // ORDER_BOOK_RAW_CHANNEL_SUBSCRIBED
     required string currency_pair = 1;
+
+    // current snapshot of orderbook. It is guaranted that all notifications will be from this snapshot.
     repeated OrderBookRawEvent data = 2;
 }
 
@@ -123,6 +153,8 @@ message OrderBookEvent {
     }
     required OrderType order_type = 1 [default = BID];
     required int64 timestamp = 2;
+
+    // zero when order is removed from orderbook (cancelled or traded)
     required string price = 3;
     required string quantity = 4;
 }
@@ -130,6 +162,8 @@ message OrderBookEvent {
 message OrderBookChannelSubscribedResponse {
     // ORDER_BOOK_CHANNEL_SUBSCRIBED
     required string currency_pair = 1;
+
+    // current snapshot of orderbook. It is guaranted that all notifications will be from this snapshot.
     repeated OrderBookEvent data = 2;
 }
 
@@ -152,6 +186,7 @@ message TradeChannelSubscribedResponse {
 }
 
 message CandleEvent {
+    // timestamp of interval start
     required int64 timestamp = 1;
     required string open_price = 2;
     required string close_price = 3;
@@ -218,12 +253,19 @@ message LoginResponse {
 message PutLimitOrderResponse {
     // PUT_LIMIT_ORDER_RESPONSE
     required int64  order_id = 1;
+
+    // quantity not traded yet.
+    // when your order has been fully traded when you put it, this field will be zero
+    // when your order has not been traded at all when you put it, this field will be original order's quantity
+    // when your order has been partially traded when you put it, this field will be the quantity left in orderbook
     required string amount_left = 2;
 }
 
 message CancelLimitOrderResponse {
     // CANCEL_LIMIT_ORDER_RESPONSE
     required int64  order_id = 1;
+
+    // quantity not traded yet. Never can be zero :)
     required string amount_left = 2;
 }
 
@@ -268,10 +310,14 @@ message WsResponseMetaData {
 
 message WsRequest {
     required WsRequestMetaData meta = 1;
+
+    // serialized request message
     required bytes msg = 2;
 }
 
 message WsResponse {
     required WsResponseMetaData meta = 1;
+
+    // serialized response message
     required bytes msg = 2;
 }

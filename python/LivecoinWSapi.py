@@ -17,7 +17,8 @@ ws.connect("wss://ws.api.livecoin.net/ws/beta")
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Subscription handlers ---------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
-
+orderbooks = []
+orderbooksraw = []
 
 def onNewTickers(symbol, events):
     for t in events:
@@ -58,7 +59,7 @@ def onNewOrders(symbol, orders, initial=False):
         orderbooks[symbol] = {"asks":{}, "bids":{}}
     for order in orders:
         type = orderTypeToStr(order.order_type)
-        if quantity == 0:
+        if order.quantity == 0:
             if order.price in orderbooks[symbol][type]:
                 del orderbooks[symbol][type][order.price]
         else:
@@ -243,15 +244,15 @@ def handleIn(rawmsg):
     elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.CANDLE_CHANNEL_SUBSCRIBED:
         event = LivecoinWSapi_pb2.CandleChannelSubscribedResponse()
         event.ParseFromString(msg)
-        onNewCandles(event.currency_pair, event.interval, i.data)
+        onNewCandles(event.currency_pair, event.interval, event.data)
     elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.CANDLE_NOTIFY:
         event = LivecoinWSapi_pb2.CandleNotification()
         event.ParseFromString(msg)
-        onNewCandles(event.currency_pair, event.interval, i.data)
+        onNewCandles(event.currency_pair, event.interval, event.data)
     elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ORDER_BOOK_RAW_CHANNEL_SUBSCRIBED:
         event = LivecoinWSapi_pb2.OrderBookRawChannelSubscribedResponse()
         event.ParseFromString(msg)
-        onNewRawOrders(event.currency_pair, i.data, initial = true)
+        onNewRawOrders(event.currency_pair, i.data, initial = True)
     elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ORDER_BOOK_RAW_NOTIFY:
         event = LivecoinWSapi_pb2.OrderBookRawNotification()
         event.ParseFromString(msg)
@@ -259,7 +260,7 @@ def handleIn(rawmsg):
     elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ORDER_BOOK_CHANNEL_SUBSCRIBED:
         event = LivecoinWSapi_pb2.OrderBookChannelSubscribedResponse()
         event.ParseFromString(msg)
-        onNewOrders(event.currency_pair, i.data, initial = true)
+        onNewOrders(event.currency_pair, i.data, initial = True)
     elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ORDER_BOOK_NOTIFY:
         event = LivecoinWSapi_pb2.OrderBookNotification()
         event.ParseFromString(msg)
@@ -306,8 +307,8 @@ subscribeOrderbook('BTC/USD', NEED_TOP_ORDERS) # only NEED_TOP_ORDERS bids and a
 subscribeTrades('BTC/USD')
 subscribeCandle('BTC/USD', LivecoinWSapi_pb2.SubscribeCandleChannelRequest.CANDLE_1_MINUTE, 10) # and give me 10 last candles
 
-login("LOGIN"
-      )
+login("LOGIN")
+
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Main running cycle ------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------

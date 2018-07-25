@@ -1,12 +1,14 @@
 # Livecoin public websocket API
 
-Current BETA version of Livecoin websocket API supports four types of channels: ticker, orderbook (grouped by price), orderbook raw, trades and candles.
+Current BETA2 version of Livecoin websocket API supports five types of channels: ticker, orderbook (grouped by price), orderbook raw, trades and candles and methods for placing limit orders and cancelling them.
 
-First, you should connect to websocket (address is wss://ws.api.livecoin.net/ws/beta).
+First, you should connect to websocket (address is wss://ws.api.livecoin.net/ws/beta2).
 
 Then, you can subscribe/unsubscribe to any channel of an existing currency pair in the exchange.
 
-You can find example clients for Java, JavaScript, Python and C# in this repo. 
+If you want to place/cancel limit orders, you should first login (providing your API key, signed by your private key) and then use methods for placing/cancelling orders (you also must signed your requests by your private key).
+
+You can find example clients for Python and JavaScript in this repo (simple clients for Java and C# coming soon).
 
 `Restrictions`
 
@@ -14,7 +16,100 @@ You can find example clients for Java, JavaScript, Python and C# in this repo.
 
 2. Outgoing queue size of websocket is limited to 4096 messages. When the queue is full, connection is dropped.
 
-### 0. General information
+## 1. General protocol information
+
+All incoming/outgoing messages are encoded using protobuf (https://developers.google.com/protocol-buffers/).
+
+All decimals (quantities, prices, volumes, etc) are represented as strings (due to issue of loosing precision in floats).
+
+All timestamps are in milliseconds from Unix Epoch in UTC.
+
+### 1.1. Sending requests
+
+For public requests you should:
+ - construct your `*Request` message with all needed fields;
+ - construct `WsRequest` message;
+ - set `meta.request_type` field of `WsRequest` to the values associated with your *Request message type;
+ - [optionaly] set `meta.token` field of `WsRequest` (it's value will be returned in response);
+ - set `data` field of `WsRequest` to serialized `*Request` message;
+ - send serialized `WsRequest` to websocket.
+
+Python example (message for subscribing on ticker USD/BTC):
+
+    request = LivecoinWSapi_pb2.SubscribeTickerChannelRequest()
+    request.currency_pair = "BTC/USD"
+    msg = LivecoinWSapi_pb2.WsRequest()
+    msg.meta.request_type = LivecoinWSapi_pb2.WsRequestMetaData.SUBSCRIBE_TICKER
+    msg.meta.token = "msg2"
+    msg.msg = request.SerializeToString()
+    websocket.send(msg.SerializeToString())
+
+For private requests (messages, containing `expire_control` field) you should:
+ - construct your `*Request` message with all needed fields;
+ - set `expire_control.now` field of your request to current Epoch timestamp in milliseconds;
+ - set `expire_control.ttl` field of your request to current to 'Time to live' milliseconds;
+ - construct `WsRequest` message;
+ - set `meta.request_type` field of `WsRequest` to the values associated with your *Request message type;
+ - [optionaly] set `meta.token` field of `WsRequest` (it's value will be returned in response);
+ - set `data` field of `WsRequest` to serialized `*Request` message;
+ - sign `data` field of `WsRequest`  with your private key and set `sign` field of `WsRequest` to your sign;
+ - send serialized `WsRequest` to websocket.
+
+Before sending any private requests (except LoginRequest) only after sucessful LoginRequest.
+
+Python example (message for putting buy limit order):
+
+    msg = LivecoinWSapi_pb2.PutLimitOrderRequest()
+    request.expire_control.now = int(round(time.time() * 1000))
+    # if processing will take more then 10s (network issues, for example), ignore this request with error
+    request.expire_control.ttl = 10000
+    request.currency_pair = "BTC/USD"
+    request.order_type = LivecoinWSapi_pb2.BID
+    request.amount = "0.0001432"
+    request.price = "8345.2131"
+    msg.meta.request_type = LivecoinWSapi_pb2.WsRequestMetaData.PUT_LIMIT_ORDER
+    msg.meta.token = "msg3"
+    msg.msg = request.SerializeToString()
+    msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).hexdigest().upper()
+    websocket.send(msg.SerializeToString())
+
+Python example of LoginRequest (you have to send it only once per connection):
+
+    msg = LivecoinWSapi_pb2.LoginRequest()
+    request.expire_control.now = int(round(time.time() * 1000))
+    request.expire_control.ttl = 60000
+    request.api_key = MY_API_KEY
+    msg.meta.request_type = LivecoinWSapi_pb2.WsRequestMetaData.LOGIN
+    msg.meta.token = "logon"
+    msg.msg = request.SerializeToString()
+    msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).hexdigest().upper()
+    websocket.send(msg.SerializeToString())
+
+This looks here a little messy, but with wrappers (you can see them in examples), usage is enough comfortable.
+
+### 1.2. Processing responses
+
+You will get response on each message you have sent to the websocket plus notifications from subscribed channels.
+
+Each message you get from websocket is either ping message (empty message), or protobuf-encoded WsResponse.
+You have to:
+ - check, if message is ping. If messages length is zero, stop processing it;
+ - deserialize `WsResponse`;
+ - deserealize `*Response` (choose message type according to `meta.request_type` field);
+ - process `*Response` message.
+
+If you have sent your request with some value in `meta.token` field, the response will contain this value in it's `meta.token` field.
+
+Be aware: responses to your messages can be `Errors` (in a case of error, of course).
+
+### 1.3. Expire control
+
+When you send private api messages, you set three fields: `expire_control.now`, `expire_control.ttl` and `sign`. Server checks this fields in this way:
+ - if `expire_control.now` is more then 1 minute old, message is not processed and `Error` is sent as a response (replay protection);
+ - if (`expire_control.now`+`expire_control.ttl`) is in the past, message is not processed and `Error` is sent as a response;
+ - if `sign` is not equal to computed sign (for logged-in user) of message in `data`, message is not processed and `Error` is sent as a response.
+
+## 2. General information
 
 You will get empty ("") messages every 30 seconds. You don't need to answer them or send anything to keep connection alive (but read the restrictions about the outgoing queue size!!!).
 
@@ -22,331 +117,14 @@ All subscriptions are valid and active from subscription until you sent 'Unsibsc
 
 Time is synchronized with public NTP servers, so timestamps in messages are accurate.
 
-There are no restrictions on the connection time **for now** (really - until the next service update). But this can be changed, especially after the implementation of private functions.
+There are no restrictions on the connection time **for now** (really - until the next service update). But this can be changed.
 
 There are no special restrictions on the subscriptions count.
 
-### 1. Ticker channel
+**For now**, restrictions of the private API usage are the same as for REST api. Later they will be modified (each message will have it's own weight), but they will never be stronger then in REST api.
 
-To subscribe send this message:
+### 3. More info
 
-    {
-        "Subscribe": {
-            "channelType": "ticker",
-            "symbol": "BTC/USD",
-            "frequency": 2.0
-        }
-    }
+For more information, please, see LivecoinWSapi.proto file and comments in it and the example sources.
 
-where
-
-`channelType` - constant "ticker";
-
-`symbol` - currency pair you are interested in;
-
-`frequency` - optional parameter. When omitted, you will get all ticker changes. When given, send rate will be limited to one message per `frequency` seconds. Minimum `frequency` is 0.1.
-
-Upon subscribing you will get a response with channelId:
-
-    {
-        "channelId": "BTC/USD_ticker",
-        operation": {
-            Subscribe": {
-                channelType": "ticker",
-                symbol": "BTC/USD",
-                frequency": 2.0
-            }
-        }
-    }
-
-`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
-
-When ticker changes you will get messages like this:
-
-    {
-        "channelId": "BTC/USD_ticker",
-        "last": 12998,
-        "high": 13002,
-        "low": 12998,
-        "volume": 0.00165000,
-        "vwap": 12999.81818182,
-        "maxBid": 13002,
-        "minAsk": 12998,
-        "bestBid": 12998,
-        "bestAsk": 13002
-    }
-
-If you want to unsubscribe, send message like this:
-
-    {
-        "Unsubscribe": {
-            "channelId": "BTC/USD_ticker"
-        }
-    }
-
-You will get an answer:
-
-    {
-        "channelId": "BTC/USD_ticker",
-        "operation": {
-            "Unsubscribe": {
-                "channelId": "BTC/USD_ticker"
-            }
-        }
-    }
-
-
-### 2. Orderbook grouped by prices
-
-To subscribe send message like this:
-
-    {
-        "Subscribe": {
-            "channelType": "orderbook",
-            "symbol": "BTC/USD",
-            "depth": 20
-        }
-    }
-
-`depth` is an optional parameter (depth of orderbook, which will be sent in an subscription answer).
-
-Upon subscribing you will get an answer with channelId and current orderbook state:
-
-    {
-        "channelId": "BTC/USD_orderbook",
-        "operation": {
-            "Subscribe": {
-                "channelType": "orderbook",
-                "symbol": "BTC/USD",
-                "depth": 20
-            }
-        },
-        "data": [{
-            "price": -13002,
-            "quantity": 0.04595
-        }, {
-            "price": -13003,
-            "quantity": 0.05
-        }, {
-            "price": -13004,
-            "quantity": 0.05
-        }, {
-            "price": 0.00001,
-            "quantity": 1151.23011
-        }]
-    }
-
-Price is positive for bids and negative for asks.
-
-`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
-
-When orderbook changes you will get messages like this (for bid changes):
-
-    {
-        "channelId": "BTC/USD_orderbook",
-        "price": 12998,
-        "quantity": 1.90149297
-    }
-
-or this (for ask changes):
-
-    {
-        "channelId": "BTC/USD_orderbook",
-        "price": -13002,
-        "quantity": 0.04565
-    }
-
-Closed position will be sent with zero quantity.
-
-To unsubscribe send message like this:
-
-    {
-        "Unsubscribe": {
-            "channelId": "BTC/USD_orderbook"
-        }
-    }
-
-### 3. Raw orderbook
-
-To subscribe send message like this:
-
-    {
-        "Subscribe": {
-            "channelType": "orderbookraw",
-            "symbol": "BTC/USD",
-            "depth": 10
-        }
-    }
-
-`depth` is an optional parameter (depth of orderbook, which will be sent in an subscription answer).
-
-You will get an answer:
-
-    {
-        "channelId": "BTC/USD_orderbookraw",
-        "operation": {
-            "Subscribe": {
-                "channelType": "orderbookraw",
-                "symbol": "BTC/USD",
-                "depth": 1
-            }
-        },
-        "data": [{
-            "id": 568405551,
-            "price": -13002,
-            "quantity": 0.04565
-        }, {
-            "id": 568402601,
-            "price": 12998,
-            "quantity": 1
-        }]
-    }
-
-Price is positive for bids and negative for asks.
-
-`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
-
-When orderbook changes you will get messages like this (for bid changes):
-
-    {
-        "channelId": "BTC/USD_orderbookraw",
-        "id": 568408501,
-        "price": 13002,
-        "quantity": 0
-    }
-
-or like this (for ask changes):
-
-    {
-        "channelId": "BTC/USD_orderbookraw",
-        "id": 568405551,
-        "price": -13002,
-        "quantity": 0.04550
-    }
-
-Closed position will be sent with zero quantity.
-
-To unsubscribe, send message like this:
-
-    {
-        "Unsubscribe": {
-            "channelId": "BTC/USD_orderbookraw"
-        }
-    }
-
-### 4. Trades
-
-To subscribe send message like this:
-
-    {
-        "Subscribe": {
-            "channelType": "trade",
-            "symbol": "BTC/USD"
-        }
-    }
-
-Upon subscribing you will get an answer with channelId:
-
-    {
-        "channelId": "BTC/USD_trade",
-        "operation": {
-            "Subscribe": {
-                "channelType": "trade",
-                "symbol": "BTC/USD"
-            }
-        }
-    }
-
-`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
-
-Upon new trades you will get messages like this (when trade is "BUY"):
-
-    {
-        "channelId": "BTC/USD_trade",
-        "id": 227794451,
-        "timestamp": 1527013099415,
-        "price": -12998,
-        "quantity": 0.00015
-    }
-
-or like this (when trade is "SELL"):
-
-    {
-        "channelId": "BTC/USD_trade",
-        "id": 227794501,
-        "timestamp": 1527013100822,
-        "price": 13002,
-        "quantity": 0.00015
-    }
-
-timestamp is Unix timestamp multiplied by 1000.
-
-To unsubscribe send message like this:
-
-    {
-        "Unsubscribe": {
-            "channelId": "BTC/USD_trade"
-        }
-    }
-
-### 5. Candles
-
-To subscribe send message like this:
-
-    {
-        "Subscribe": {
-            "channelType": "candle",
-            "symbol": "BTC/USD",
-            "interval": "1m"
-        }
-    }
-
-interval now supports only "1m" (1 minute).
-
-Upon subscribing you will get an answer with channelId and current orderbook state:
-
-    {
-        "channelId": "BTC/USD_candle",
-        "operation": {
-            "Subscribe": {
-                "channelType": "orderbook",
-                "symbol": "BTC/USD",
-                "interval": "1m"
-            }
-        },
-        "data": [
-            {"t":1528447620000,"o":7883.0874,"c":7883.0874,"h":7883.0874,"l":7883.0874,"v":0,"q":0},
-            {"t":1528447680000,"o":7883.0874,"c":7885,"h":7885,"l":7883.0874,"v":0.00209562,"q":16.52396370},
-            ...
-        ]
-    }
-
-`t` is interval's start timestamp (Unix timestamp multiplied by 1000),
-
-`o` is open price (price at timestamp `t`),
-
-`c` is close price (price at timestamp `t` + `interval` [1m] ), 
-
-`h` is the highest trade price at the interval,
-
-`l` is the lowest trade price at the interval,
-
-`v` is volume traded at the interval (BTC for 'BTC/USD' pair),
-
-`q` is quoted volume traded at the interval (USD for 'BTC/USD' pair).
-
-In the `data` field you will get last 240 candles.
-
-`ATTENTION`: the method of channelId generation is subject to change in future releases!!! It maybe changed to a numeric value in a future release. Therefore you should not rely on currency pair symbol nor channel type from channelId remaining the same! Your code must save map (channelId -> channelType/symbol) according to the "Subscribe" response and use this map for decoding channelId to channelType/symbol.
-
-Every `interval` (currently - every minute) you will get messages like this:
-
-    {"channelId":"BTC/USD_candle","t":1528462020000,"o":7.9E+3,"c":7901.58001,"h":7.92E+3,"l":7.9E+3,"v":613.21937803,"q":0.07762054}
-
-To unsubscribe send a message like this:
-
-    {
-        "Unsubscribe": {
-            "channelId": "BTC/USD_candle"
-        }
-    }
+In a case of any questions make an issue, please.

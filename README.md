@@ -93,9 +93,9 @@ You will get response on each message you have sent to the websocket plus notifi
 
 Each message you get from websocket is either ping message (empty message), or protobuf-encoded WsResponse.
 You have to:
- - check, if message is ping. If messages length is zero, stop processing it;
- - deserialize `WsResponse`;
- - deserealize `*Response` (choose message type according to `meta.request_type` field);
+ - check, if message is ping. If message length is zero, stop processing it;
+ - deserialize `WsResponse` out of message;
+ - deserialize `*Response` out of `msg` field of `WsResponse` (choose message type according to `meta.request_type` field);
  - process `*Response` message.
 
 If you have sent your request with some value in `meta.token` field, the response will contain this value in it's `meta.token` field.

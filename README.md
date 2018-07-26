@@ -42,7 +42,7 @@ Python example (message for subscribing on ticker USD/BTC):
     msg.meta.request_type = LivecoinWSapi_pb2.WsRequestMetaData.SUBSCRIBE_TICKER
     msg.meta.token = "msg2"
     msg.msg = request.SerializeToString()
-    websocket.send(msg.SerializeToString())
+    websocket.send_binary(msg.SerializeToString())
 
 For private requests (messages, containing `expire_control` field) you should:
  - construct your `*Request` message with all needed fields;
@@ -71,7 +71,7 @@ Python example (message for putting buy limit order):
     msg.meta.token = "msg3"
     msg.msg = request.SerializeToString()
     msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).hexdigest().upper()
-    websocket.send(msg.SerializeToString())
+    websocket.send_binary(msg.SerializeToString())
 
 Python example of LoginRequest (you have to send it only once per connection):
 
@@ -83,7 +83,7 @@ Python example of LoginRequest (you have to send it only once per connection):
     msg.meta.token = "logon"
     msg.msg = request.SerializeToString()
     msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).hexdigest().upper()
-    websocket.send(msg.SerializeToString())
+    websocket.send_binary(msg.SerializeToString())
 
 This looks here a little messy, but with wrappers (you can see them in examples), usage is enough comfortable.
 

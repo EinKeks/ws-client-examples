@@ -98,7 +98,7 @@ def sendUnsigned(msgtype, request, token):
     if token is not None:
         msg.meta.token = token
     msg.msg = request.SerializeToString()
-    ws.send(msg.SerializeToString())
+    ws.send_binary(msg.SerializeToString())
 
 def subscribeTicker(symbol, frequency=None, token=None):
     request = LivecoinWSapi_pb2.SubscribeTickerChannelRequest()
@@ -178,7 +178,7 @@ def sendSigned(msgtype, request, token, ttl):
     # now sign message
     msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).hexdigest().upper()
     # send it
-    ws.send(msg.SerializeToString())
+    ws.send_binary(msg.SerializeToString())
 
 
 def login(token = None, ttl=10000): # ttl is in milliseconds

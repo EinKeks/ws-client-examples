@@ -2,45 +2,39 @@
 
 window.onload = function() {
 
-    // require('protobufjs')
+    var MY_API_KEY = "gJx7Wa7qXkPtmTAaK3ADCtr6m5rCYYMy";
+    var MY_SECRET_KEY = String.fromCharCode.apply(null,"8eLps29wsXszNyEhOl9w8dxsOsM2lTzg".split(''));
+    // var hash = (CryptoJS.HmacSHA256([1,2,3], MY_SECRET_KEY));
+    // var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+    // var strHash = hash.toString();
+    // var signtest = sha256.hmac(MY_SECRET_KEY, [1,2,3]).toString();
     protobuf.load("js/wsApi.proto", function (err, root) {
-        // var socket = connect("wss://ws.api.livecoin.net/ws/beta");
-        var socket = connect("ws://localhost:9161/ws/beta");
+        var socket = connect("wss://ws.api.livecoin.net/ws/beta");
         socket.onopen = function () {
             console.log("Connection established.");
-            // tickerSubscribe("token","BTC/USD", null);
-            // orderBookSubscribe("token1", "BTC/USD", 1);
-            // rawOrderBookSubscribe("token2", "BTC/USD", 1);
-            // tradeSubscribe("token3", "BTC/USD");
-            candleSubscribe("token4", "BTC/USD", "1m", 0)
-            // subscribe(null, "t", "BTC/USD", 10.0);
-            // subscribe(null, "o", "BTC/USD", 1);
-            // subscribe(null, "r", "BTC/USD", 1);
-            // subscribe(null, "d", "BTC/USD", null);
-            // subscribe(null, "c", "BTC/USD", "1m");
-            //
+            login(300000);
+            tickerSubscribe("token","BTC/USD", null);
+            orderBookSubscribe("token1", "BTC/USD", 1);
+            rawOrderBookSubscribe("token2", "BTC/USD", 1);
+            tradeSubscribe("token3", "BTC/USD");
+            candleSubscribe("token4", "BTC/USD", "1m", 0);
             setTimeout(function () {
                 var UnsubscribeRequest = root.lookupType("protobuf.ws.UnsubscribeRequest");
                 unsubscribe("token5",UnsubscribeRequest.ChannelType.CANDLE,"BTC/USD")
-            //     unsubscribe(null, "BTC/USD", "t");
-            //     unsubscribe(null, "BTC/USD", "r");
-            //     unsubscribe(null, "BTC/USD", "o");
-            //     unsubscribe(null, "BTC/USD", "d");
-            //     unsubscribe(null, "BTC/USD", "c");
             }, 30000);
             setTimeout(disconnect, 140000)
             //here you can make your trade decision
         };
 
         var doMessage = function(token, subscriptionPayload, lookupTypeValue, msgType) {
-            var Subscription = root.lookupType(lookupTypeValue);
-            var subscriptionError = Subscription.verify(subscriptionPayload);
+            var Message = root.lookupType(lookupTypeValue);
+            var subscriptionError = Message.verify(subscriptionPayload);
             if(subscriptionError) {
                 console.log(subscriptionError);
                 throw Error(subscriptionError);
             }
-            var subscriptionMessage = Subscription.create(subscriptionPayload);
-            var subscriptionBuffer = Subscription.encode(subscriptionMessage).finish();
+            var subscriptionMessage = Message.create(subscriptionPayload);
+            var subscriptionBuffer = Message.encode(subscriptionMessage).finish();
 
 
             var WsRequestMeta = root.lookupType("protobuf.ws.WsRequestMetaData");
@@ -121,6 +115,111 @@ window.onload = function() {
                 currencyPair: cp
             };
             doMessage(token, subscriptionPayload, "protobuf.ws.UnsubscribeRequest", WsRequestMeta.WsRequestMsgType.UNSUBSCRIBE);
+        };
+
+        var doPrivateMessage = function(token, msgPayload, lookupTypeValue, msgType) {
+
+            var PrivateRequest = root.lookupType(lookupTypeValue);
+
+            var privateMsgErr = PrivateRequest.verify(msgPayload);
+
+            if (privateMsgErr) {
+                throw Error(privateMsgErr);
+            }
+            var privateRequest = PrivateRequest.encode(
+                PrivateRequest.create(msgPayload)).finish();
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var metaPayload = {
+                requestType: msgType,
+                token: token,
+                sign: (CryptoJS.HmacSHA256(privateRequest, MY_SECRET_KEY)).toString()
+            };
+            var metaErr = WsRequestMetaData.verify(metaPayload);
+            if(metaErr) {
+                throw Error(metaErr);
+            }
+            var WsRequest = root.lookupType("protobuf.ws.WsRequest");
+            var requestPayload = {
+                meta: WsRequestMetaData.create(metaPayload),
+                msg: privateRequest
+            };
+            var requestErr = WsRequest.verify(requestPayload);
+            if (requestErr) {
+                throw Error(requestErr);
+            }
+            socket.send(WsRequest.encode(WsRequest.create(requestPayload)).finish())
+        };
+
+        var login = function(ttl){
+            var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
+            var expiredPayload = {
+                now:Date.now(),
+                ttl:ttl
+            };
+            var err = RequestExpired.verify(expiredPayload);
+            if(err) {
+                throw Error(err)
+            }
+
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var requestExpired = RequestExpired.create(expiredPayload);
+            var requestType = WsRequestMetaData.WsRequestMsgType.LOGIN;
+
+
+            var loginPayload = {
+                expireControl: requestExpired,
+                apiKey: MY_API_KEY
+            };
+
+            doPrivateMessage("login", loginPayload, "protobuf.ws.LoginRequest", requestType)
+        };
+        var putLimitOrder = function(cp, orderType, amount, price, ttl){
+            var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
+            var expiredPayload = {
+                now:Date.now(),
+                ttl:ttl
+            };
+            var err = RequestExpired.verify(expiredPayload);
+            if(err) {
+                throw Error(err)
+            }
+
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var requestExpired = RequestExpired.create(expiredPayload);
+            var requestType = WsRequestMetaData.WsRequestMsgType.PUT_LIMIT_ORDER;
+
+            var putLimitOrderPayload = {
+                expireControl: requestExpired,
+                currencyPair: cp,
+                orderType: orderType,
+                amount: amount,
+                price: price
+            };
+
+            doPrivateMessage("login", putLimitOrderPayload, "protobuf.ws.PutLimitOrderRequest", requestType);
+        };
+        var cancelLimitOrder = function(id, cp, ttl){
+            var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
+            var expiredPayload = {
+                now:Date.now(),
+                ttl:ttl
+            };
+            var err = RequestExpired.verify(expiredPayload);
+            if(err) {
+                throw Error(err)
+            }
+
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var requestExpired = RequestExpired.create(expiredPayload);
+            var requestType = WsRequestMetaData.WsRequestMsgType.PUT_LIMIT_ORDER;
+
+            var cancelLimitOrderPayload = {
+                expireControl: requestExpired,
+                currencyPair: cp,
+                id: id
+            };
+
+            doPrivateMessage("login", cancelLimitOrderPayload, "protobuf.ws.CancelLimitOrderRequest", requestType);
         };
 
         socket.onclose = function (event) {
@@ -223,10 +322,22 @@ window.onload = function() {
                     MessageClass = root.lookupType("protobuf.ws.TradeNotification");
                     message = MessageClass.decode(wsResponseMessage.msg);
                     onTrade(message)
-                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.CandleNotification) {
-                    MessageClass = root.lookupType("protobuf.ws.TradeNotification");
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.CANDLE_NOTIFY) {
+                    MessageClass = root.lookupType("protobuf.ws.CandleNotification");
                     message = MessageClass.decode(wsResponseMessage.msg);
                     onCandle(message)
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.LOGIN_RESPONSE) {
+                    MessageClass = root.lookupType("protobuf.ws.LoginResponse");
+                    message = MessageClass.decode(wsResponseMessage.msg);
+                    onLogin()
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.PUT_LIMIT_ORDER_RESPONSE) {
+                    MessageClass = root.lookupType("protobuf.ws.PutLimitOrderResponse");
+                    message = MessageClass.decode(wsResponseMessage.msg);
+                    onPutLimitOrder(message)
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.CANCEL_LIMIT_ORDER_RESPONSE) {
+                    MessageClass = root.lookupType("protobuf.ws.CancelLimitOrderResponse");
+                    message = MessageClass.decode(wsResponseMessage.msg);
+                    onCancelLimitOrder(message)
                 }
             }
         };
@@ -275,6 +386,18 @@ window.onload = function() {
         function onUnsubscribe(msg) {
             console.log("channel unsubscribed: " + JSON.stringify(msg))
             //here you can make your trade decision
+        }
+
+        function onLogin() {
+            console.log("Successful login")
+        }
+
+        function onPutLimitOrder(msg) {
+            console.log("The order limit has been set: " + JSON.stringify(msg))
+        }
+
+        function onCancelLimitOrder(msg) {
+            console.log("The order limit has been canceled: " + JSON.stringify(msg))
         }
 
         function connect(path) {

@@ -3,16 +3,13 @@
 window.onload = function() {
 
     var MY_API_KEY = "gJx7Wa7qXkPtmTAaK3ADCtr6m5rCYYMy";
-    var MY_SECRET_KEY = String.fromCharCode.apply(null,"8eLps29wsXszNyEhOl9w8dxsOsM2lTzg".split(''));
-    // var hash = (CryptoJS.HmacSHA256([1,2,3], MY_SECRET_KEY));
-    // var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-    // var strHash = hash.toString();
-    // var signtest = sha256.hmac(MY_SECRET_KEY, [1,2,3]).toString();
+    var MY_SECRET_KEY = "8eLps29wsXszNyEhOl9w8dxsOsM2lTzg";
+
     protobuf.load("js/wsApi.proto", function (err, root) {
-        var socket = connect("wss://ws.api.livecoin.net/ws/beta");
+        var socket = connect("wss://ws.api.livecoin.net/ws/beta2");
         socket.onopen = function () {
             console.log("Connection established.");
-            login(300000);
+            login("login", MY_API_KEY, MY_SECRET_KEY, 300000);
             tickerSubscribe("token","BTC/USD", null);
             orderBookSubscribe("token1", "BTC/USD", 1);
             rawOrderBookSubscribe("token2", "BTC/USD", 1);
@@ -117,7 +114,7 @@ window.onload = function() {
             doMessage(token, subscriptionPayload, "protobuf.ws.UnsubscribeRequest", WsRequestMeta.WsRequestMsgType.UNSUBSCRIBE);
         };
 
-        var doPrivateMessage = function(token, msgPayload, lookupTypeValue, msgType) {
+        var doPrivateMessage = function(secretKey, token, msgPayload, lookupTypeValue, msgType) {
 
             var PrivateRequest = root.lookupType(lookupTypeValue);
 
@@ -129,10 +126,15 @@ window.onload = function() {
             var privateRequest = PrivateRequest.encode(
                 PrivateRequest.create(msgPayload)).finish();
             var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var preparedMsg = byteArrayToWordArray(privateRequest);
+            var keyArray = stringToByteArray(secretKey);
+            var preparedKey = byteArrayToWordArray(keyArray);
+            var hash = CryptoJS.HmacSHA256(preparedMsg, preparedKey);
+            var sign = toHexString(wordArrayToByteArray(hash)).toUpperCase();
             var metaPayload = {
                 requestType: msgType,
                 token: token,
-                sign: (CryptoJS.HmacSHA256(privateRequest, MY_SECRET_KEY)).toString()
+                sign: sign
             };
             var metaErr = WsRequestMetaData.verify(metaPayload);
             if(metaErr) {
@@ -150,7 +152,7 @@ window.onload = function() {
             socket.send(WsRequest.encode(WsRequest.create(requestPayload)).finish())
         };
 
-        var login = function(ttl){
+        var login = function(token, apiKey, secretKey, ttl){
             var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
             var expiredPayload = {
                 now:Date.now(),
@@ -168,12 +170,12 @@ window.onload = function() {
 
             var loginPayload = {
                 expireControl: requestExpired,
-                apiKey: MY_API_KEY
+                apiKey: apiKey
             };
 
-            doPrivateMessage("login", loginPayload, "protobuf.ws.LoginRequest", requestType)
+            doPrivateMessage(secretKey, token, loginPayload, "protobuf.ws.LoginRequest", requestType)
         };
-        var putLimitOrder = function(cp, orderType, amount, price, ttl){
+        var putLimitOrder = function(token, secretKey, cp, orderType, amount, price, ttl){
             var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
             var expiredPayload = {
                 now:Date.now(),
@@ -196,9 +198,9 @@ window.onload = function() {
                 price: price
             };
 
-            doPrivateMessage("login", putLimitOrderPayload, "protobuf.ws.PutLimitOrderRequest", requestType);
+            doPrivateMessage(secretKey, token, putLimitOrderPayload, "protobuf.ws.PutLimitOrderRequest", requestType);
         };
-        var cancelLimitOrder = function(id, cp, ttl){
+        var cancelLimitOrder = function(token, secretKey, id, cp, ttl){
             var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
             var expiredPayload = {
                 now:Date.now(),
@@ -211,7 +213,7 @@ window.onload = function() {
 
             var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
             var requestExpired = RequestExpired.create(expiredPayload);
-            var requestType = WsRequestMetaData.WsRequestMsgType.PUT_LIMIT_ORDER;
+            var requestType = WsRequestMetaData.WsRequestMsgType.CANCEL_LIMIT_ORDER;
 
             var cancelLimitOrderPayload = {
                 expireControl: requestExpired,
@@ -219,7 +221,7 @@ window.onload = function() {
                 id: id
             };
 
-            doPrivateMessage("login", cancelLimitOrderPayload, "protobuf.ws.CancelLimitOrderRequest", requestType);
+            doPrivateMessage(secretKey, token, cancelLimitOrderPayload, "protobuf.ws.CancelLimitOrderRequest", requestType);
         };
 
         socket.onclose = function (event) {
@@ -389,14 +391,20 @@ window.onload = function() {
         }
 
         function onLogin() {
-            console.log("Successful login")
+            console.log("Successful login");
+            //here you can make your trade decision
+            var putlimitOrtedType = root.lookupType("protobuf.ws.PutLimitOrderRequest").OrderType.BID;
+            putLimitOrder("Limit", MY_SECRET_KEY,"BTC/USD", putlimitOrtedType,"10","20",30000);
         }
 
         function onPutLimitOrder(msg) {
-            console.log("The order limit has been set: " + JSON.stringify(msg))
+            console.log("The order limit has been set: " + JSON.stringify(msg));
+            //here you can make your trade decision
+            cancelLimitOrder("cancel", MY_SECRET_KEY, Number.parseInt(msg.orderId),"BTC/USD",30000)
         }
 
         function onCancelLimitOrder(msg) {
+            //here you can make your trade decision
             console.log("The order limit has been canceled: " + JSON.stringify(msg))
         }
 
@@ -410,5 +418,62 @@ window.onload = function() {
             socket.close();
             console.log("Connection closed")
         }
+
+        function byteArrayToWordArray(ba) {
+            var wa = [],
+                i;
+            for (i = 0; i < ba.length; i++) {
+                wa[(i / 4) | 0] |= ba[i] << (24 - 8 * i);
+            }
+
+            return CryptoJS.lib.WordArray.create(wa, ba.length);
+        }
+
+        function wordToByteArray(word, length) {
+            var ba = [],
+                i,
+                xFF = 0xFF;
+            if (length > 0)
+                ba.push(word >>> 24);
+            if (length > 1)
+                ba.push((word >>> 16) & xFF);
+            if (length > 2)
+                ba.push((word >>> 8) & xFF);
+            if (length > 3)
+                ba.push(word & xFF);
+
+            return ba;
+        }
+
+        function wordArrayToByteArray(wordArray, length) {
+            if (wordArray.hasOwnProperty("sigBytes") && wordArray.hasOwnProperty("words")) {
+                length = wordArray.sigBytes;
+                wordArray = wordArray.words;
+            }
+
+            var result = [],
+                bytes
+            var i = 0;
+            while (length > 0) {
+                bytes = wordToByteArray(wordArray[i], Math.min(4, length));
+                length -= bytes.length;
+                result.push(bytes);
+                i++;
+            }
+            return [].concat.apply([], result);
+        }
+        function toHexString(byteArray) {
+            return Array.from(byteArray, function(byte) {
+                return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+            }).join('')
+        }
+        function stringToByteArray(string) {
+            var data = [];
+            for (var i = 0; i < string.length; i++){
+                data.push(string.charCodeAt(i));
+            }
+            return data;
+
+        }
     });
-}
+};

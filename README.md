@@ -1,4 +1,9 @@
+# This version of API is deprecated. Use, please, v2 in master branch
+
+This version is still working, but it will be closed in september/october. Please, move to v2.
+
 # Livecoin public websocket API
+
 
 Current BETA version of Livecoin websocket API supports four types of channels: ticker, orderbook (grouped by price), orderbook raw, trades and candles.
 

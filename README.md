@@ -2,6 +2,8 @@
 
 Current BETA2 version of Livecoin websocket API supports five types of channels: ticker, orderbook (grouped by price), orderbook raw, trades and candles and methods for placing limit orders and cancelling them.
 
+You can see description of previous version at https://github.com/lvcn1/ws-client-examples/tree/beta_v1 .
+
 First, you should connect to websocket (address is wss://ws.api.livecoin.net/ws/beta2).
 
 Then, you can subscribe/unsubscribe to any channel of an existing currency pair in the exchange.

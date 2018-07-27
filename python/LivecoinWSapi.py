@@ -6,51 +6,53 @@ import LivecoinWSapi_pb2
 import hashlib
 import hmac
 
-MY_API_KEY = "gJx7Wa7qXkPtmTAaK3ADCtr6m5rCYYMy"
-MY_SECRET_KEY = b"8eLps29wsXszNyEhOl9w8dxsOsM2lTzg"
+MY_API_KEY = "sTaMP6f2zMdhjKQva7SSaZENStXx2kbk"
+MY_SECRET_KEY = b"z4TJJqYTgWqy2KGxuD14TUpddZmVRHxR"
 
 NEED_TOP_ORDERS = 5
 
 ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE}) # python issue with comodo certs
-ws.connect("wss://ws.api.livecoin.net/ws/beta")
+#ws.connect("ws://monster:9162/ws/beta2")
+ws.connect("wss://ws.api.livecoin.net/ws/beta2")
 
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Subscription handlers ---------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
-orderbooks = []
-orderbooksraw = []
+orderbooks = {}
+orderbooksraw = {}
 
 def onNewTickers(symbol, events):
     for t in events:
         print ("ticker: %s/%s/%s" % (
             symbol,
-            datetime.datetime.fromtimestamp(t / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+            datetime.datetime.fromtimestamp(t.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
             str(events)))
 
 def onNewCandles(symbol, interval, events):
-    for t in events:
-        print ("candles: %s[%s]/%s/%s" % (
-            symbol,
-            interval,
-            datetime.datetime.fromtimestamp(t / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-            str(events)))
+    None
+#    for t in events:
+#        print ("candles: %s[%s]/%s/%s" % (
+#            symbol,
+#            interval,
+#            datetime.datetime.fromtimestamp(t.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+#            str(events)))
 
 def onNewTrades(symbol,events):
     for t in events:
         print ("trades: %s/%s/%s" % (
             symbol,
-            datetime.datetime.fromtimestamp(t / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+            datetime.datetime.fromtimestamp(t.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
             str(events)))
 
 def orderTypeToStr(enumConstant):
-    return "bid" if enumConstant == LivecoinWSapi_pb2.BID else "ask"
+    return "bids" if enumConstant == LivecoinWSapi_pb2.OrderBookRawEvent.BID else "asks"
 
 def printOrderBook(symbol):
     book = orderbooks[symbol]
     for type in ["bids", "asks"]:
         str = type + "raw: "
         for b in sorted(book[type], reverse= (type=="bids")):
-            str += ("%f->%f " % (b, book["bids"][b]))
+            str += ("%s->%s\n" % (b, book[type][b]))
         print (str)
 
 
@@ -63,15 +65,16 @@ def onNewOrders(symbol, orders, initial=False):
             if order.price in orderbooks[symbol][type]:
                 del orderbooks[symbol][type][order.price]
         else:
-            orderbooksraw[symbol][type][order.price] = (order.quantity,order.timestamp)
-    printOrderBook(symbol)
+            orderbooks[symbol][type][order.price] = (order.quantity,order.timestamp)
+    if (not initial):
+        printOrderBook(symbol)
 
 def printOrderBookRaw(symbol):
   book = orderbooksraw[symbol]
   for type in ["bids", "asks"]:
       str = type+"raw: "
       for b in sorted(book[type], key=lambda x: book[type][x][0], reverse=(type == "bids")):
-          str += ("%d:%f->%f " % (b, book[type][b][0], book[type][b][1]))
+          str += ("%d:%s->%s\n" % (b, book[type][b][0], book[type][b][1]))
       print (str)
 
 def onNewRawOrders(symbol, orders, initial=False):
@@ -84,7 +87,12 @@ def onNewRawOrders(symbol, orders, initial=False):
                 del orderbooksraw[symbol][type][order.id]
         else:
             orderbooksraw[symbol][type][order.id] = (order.price,order.quantity,order.timestamp)
-    printOrderBookRaw(symbol)
+    if (not initial):
+        printOrderBookRaw(symbol)
+
+
+def onUnsubscribe(channel_type, currency_pair):
+    print ("Unsubscribed from %s for pair %s\n" % (channel_type, currency_pair))
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -162,6 +170,12 @@ def unsubscribeCandle(symbol, token=None):
     sendUnsigned(LivecoinWSapi_pb2.WsRequestMetaData.UNSUBSCRIBE, request, token)
 
 # ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------- Error handler------------ -----------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+def onError(token, code, message):
+    print ("Error in message %s (code:%d, text:%s)\n" % (token,code,message))
+
+# ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Private api ------------- -----------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -189,7 +203,7 @@ def login(token = None, ttl=10000): # ttl is in milliseconds
 def putLimitOrder(symbol, isBuy, amount, price, token = None, ttl=10000): # ttl is in milliseconds
     msg = LivecoinWSapi_pb2.PutLimitOrderRequest()
     msg.currency_pair = symbol
-    msg.order_type = LivecoinWSapi_pb2.BID if isBuy else LivecoinWSapi_pb2.ASK
+    msg.order_type = LivecoinWSapi_pb2.PutLimitOrderRequest.BID if isBuy else LivecoinWSapi_pb2.PutLimitOrderRequest.ASK
     msg.amount = str(amount)
     msg.price = str(price)
     sendSigned(LivecoinWSapi_pb2.WsRequestMetaData.PUT_LIMIT_ORDER, msg, token, ttl)
@@ -206,9 +220,11 @@ def cancelLimitOrder(symbol, id, token = None, ttl=10000): # ttl is in milliseco
 
 def onSuccessfullLogin(token):
     print("Successfully logged in\n")
+    doAuthenticatedTest()
 
 def onSuccessfullOrderPut(token, order_id, amount_left):
-    print ("We created new order with id %d, quantity left %s" %(order_id, amount_left))
+    print ("We created new order with id %d, quantity left %s (token=%s)" %(order_id, amount_left, token))
+    onTestOrderPut(token, order_id)
 
 def onSuccessfullOrderCancel(token, order_id, amount_left):
     print ("We cancelled order with id %d, quantity left was %s" % (order_id, amount_left))
@@ -225,61 +241,63 @@ def handleIn(rawmsg):
     msgtype = response.meta.response_type
     msg = response.msg
 
-    if msgtype == LivecoinWSapi_pb2.WsRequestMetaData.TICKER_CHANNEL_SUBSCRIBED:
+    doTestOnToken(token)
+
+    if msgtype == LivecoinWSapi_pb2.WsResponseMetaData.TICKER_CHANNEL_SUBSCRIBED:
         event = LivecoinWSapi_pb2.TickerChannelSubscribedResponse()
         event.ParseFromString(msg)
         onNewTickers(event.currency_pair, event.data)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.TICKER_NOTIFY:
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.TICKER_NOTIFY:
         event = LivecoinWSapi_pb2.TickerNotification()
         event.ParseFromString(msg)
         onNewTickers(event.currency_pair, event.data)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.TRADE_CHANNEL_SUBSCRIBED:
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.TRADE_CHANNEL_SUBSCRIBED:
         event = LivecoinWSapi_pb2.TradeChannelSubscribedResponse()
         event.ParseFromString(msg)
-        onNewTrades(event.currency_pair, msg.data)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.TRADE_NOTIFY:
+        onNewTrades(event.currency_pair, event.data)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.TRADE_NOTIFY:
         event = LivecoinWSapi_pb2.TradeNotification()
         event.ParseFromString(msg)
-        onNewTrades(event.currency_pair, msg.data)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.CANDLE_CHANNEL_SUBSCRIBED:
+        onNewTrades(event.currency_pair, event.data)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.CANDLE_CHANNEL_SUBSCRIBED:
         event = LivecoinWSapi_pb2.CandleChannelSubscribedResponse()
         event.ParseFromString(msg)
         onNewCandles(event.currency_pair, event.interval, event.data)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.CANDLE_NOTIFY:
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.CANDLE_NOTIFY:
         event = LivecoinWSapi_pb2.CandleNotification()
         event.ParseFromString(msg)
         onNewCandles(event.currency_pair, event.interval, event.data)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ORDER_BOOK_RAW_CHANNEL_SUBSCRIBED:
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.ORDER_BOOK_RAW_CHANNEL_SUBSCRIBED:
         event = LivecoinWSapi_pb2.OrderBookRawChannelSubscribedResponse()
         event.ParseFromString(msg)
-        onNewRawOrders(event.currency_pair, i.data, initial = True)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ORDER_BOOK_RAW_NOTIFY:
+        onNewRawOrders(event.currency_pair, event.data, initial = True)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.ORDER_BOOK_RAW_NOTIFY:
         event = LivecoinWSapi_pb2.OrderBookRawNotification()
         event.ParseFromString(msg)
-        onNewRawOrders(event.currency_pair, i.data)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ORDER_BOOK_CHANNEL_SUBSCRIBED:
+        onNewRawOrders(event.currency_pair, event.data)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.ORDER_BOOK_CHANNEL_SUBSCRIBED:
         event = LivecoinWSapi_pb2.OrderBookChannelSubscribedResponse()
         event.ParseFromString(msg)
-        onNewOrders(event.currency_pair, i.data, initial = True)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ORDER_BOOK_NOTIFY:
+        onNewOrders(event.currency_pair, event.data, initial = True)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.ORDER_BOOK_NOTIFY:
         event = LivecoinWSapi_pb2.OrderBookNotification()
         event.ParseFromString(msg)
-        onNewOrders(event.currency_pair, i.data)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.UNSUBSCRIBE:
-        event = LivecoinWSapi_pb2.OrderBookNotification()
+        onNewOrders(event.currency_pair, event.data)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.CHANNEL_UNSUBSCRIBED:
+        event = LivecoinWSapi_pb2.ChannelUnsubscribedResponse()
         event.ParseFromString(msg)
-        onUnsubscribe(event.channel_type, event.currency_pair)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.ERROR:
+        onUnsubscribe(event.type, event.currency_pair)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.ERROR:
         event = LivecoinWSapi_pb2.ErrorResponse()
         event.ParseFromString(msg)
         onError(token, event.code, event.message)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.LOGIN_RESPONSE:
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.LOGIN_RESPONSE:
         onSuccessfullLogin(token)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.PUT_LIMIT_ORDER_RESPONSE:
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.PUT_LIMIT_ORDER_RESPONSE:
         event = LivecoinWSapi_pb2.PutLimitOrderResponse()
         event.ParseFromString(msg)
         onSuccessfullOrderPut(token, event.order_id, event.amount_left)
-    elif msgtype == LivecoinWSapi_pb2.WsRequestMetaData.CANCEL_LIMIT_ORDER_RESPONSE:
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.CANCEL_LIMIT_ORDER_RESPONSE:
         event = LivecoinWSapi_pb2.OrderBookNotification()
         event.ParseFromString(msg)
         onSuccessfullOrderCancel(token, event.order_id, event.amount_left)
@@ -289,16 +307,11 @@ def handleIn(rawmsg):
 # ----------------------------------------------------------------------------------------------------------------------
 
 #test unsubscription
-subscribeTrades('BTC/RUR')
-unsubscribeTrades('BTC/RUR')
-subscribeOrderbook('BTC/RUR', 1)
-unsubscribeOrderbook('BTC/RUR')
-subscribeOrderbookRaw('BTC/RUR', 1)
-unsubscribeOrderbookRaw('BTC/RUR')
-subscribeCandle('BTC/RUR', LivecoinWSapi_pb2.SubscribeCandleChannelRequest.CANDLE_1_MINUTE, 1)
-unsubscribeCandle('BTC/RUR')
-subscribeTicker('BTC/RUR', 1)
-unsubscribeTicker('BTC/RUR')
+subscribeTrades('BTC/RUR', token="s1")
+subscribeOrderbook('BTC/RUR', 1, token="s2")
+subscribeOrderbookRaw('BTC/RUR', 1, token="s3")
+subscribeCandle('BTC/RUR', LivecoinWSapi_pb2.SubscribeCandleChannelRequest.CANDLE_1_MINUTE, 1, token="s4")
+subscribeTicker('BTC/RUR', 1, token="s5")
 
 #test channels
 subscribeOrderbookRaw('BTC/USD', NEED_TOP_ORDERS) # only NEED_TOP_ORDERS bids and asks in snapshot
@@ -308,6 +321,28 @@ subscribeTrades('BTC/USD')
 subscribeCandle('BTC/USD', LivecoinWSapi_pb2.SubscribeCandleChannelRequest.CANDLE_1_MINUTE, 10) # and give me 10 last candles
 
 login("LOGIN")
+
+def doTestOnToken(token):
+    if (token == "s1"):
+        unsubscribeTrades('BTC/RUR')
+    elif (token == "s2"):
+        unsubscribeOrderbook('BTC/RUR')
+    elif (token == "s3"):
+        unsubscribeOrderbookRaw('BTC/RUR')
+    elif (token == "s4"):
+        unsubscribeCandle('BTC/RUR')
+    elif (token == "s5"):
+        unsubscribeTicker('BTC/RUR')
+
+def doAuthenticatedTest():
+    putLimitOrder("BTC/EUR", isBuy=True, amount=0.1, price=10, token="badorder", ttl=10000) # WHY NOT?
+    putLimitOrder("BTC/EUR", isBuy=True, amount=1, price=10, token="fakeorder", ttl=10000) # WHY NOT?
+    putLimitOrder("BTC/USD", isBuy=True, amount=0.001, price=8300, token="myfirstbuy", ttl=10000)
+    putLimitOrder("BTC/USD", isBuy=False, amount=0.001, price=8300, token="myfirstsell", ttl=10000)
+
+def onTestOrderPut(token, id):
+    if (token == "fakeorder"):
+        cancelLimitOrder("BTC/EUR", id, "cancelfake", ttl=10000)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Main running cycle ------------------------------------------------------------------

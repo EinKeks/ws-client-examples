@@ -1,4 +1,4 @@
-# Livecoin public websocket API
+# Livecoin websocket API
 
 Current BETA2 version of Livecoin websocket API supports five types of channels: ticker, orderbook (grouped by price), orderbook raw, trades and candles and methods for placing limit orders and cancelling them.
 
@@ -9,6 +9,8 @@ Then, you can subscribe/unsubscribe to any channel of an existing currency pair 
 If you want to place/cancel limit orders, you should first login (providing your API key, signed by your private key) and then use methods for placing/cancelling orders (you also must signed your requests by your private key).
 
 You can find example clients for Python and JavaScript in this repo (simple clients for Java and C# coming soon).
+
+`WARNING!!!` examples contain invalid authentication keys. You have to provide your keys to test private api part. Be VERY careful - examples make orders and trades!!!!
 
 `Restrictions`
 
@@ -64,7 +66,7 @@ Python example (message for putting buy limit order):
     # if processing will take more then 10s (network issues, for example), ignore this request with error
     request.expire_control.ttl = 10000
     request.currency_pair = "BTC/USD"
-    request.order_type = LivecoinWSapi_pb2.BID
+    request.order_type = LivecoinWSapi_pb2.PutLimitOrderRequest.BID
     request.amount = "0.0001432"
     request.price = "8345.2131"
     msg.meta.request_type = LivecoinWSapi_pb2.WsRequestMetaData.PUT_LIMIT_ORDER
@@ -125,6 +127,6 @@ There are no special restrictions on the subscriptions count.
 
 ### 3. More info
 
-For more information, please, see LivecoinWSapi.proto file and comments in it and the example sources.
+For more information, please, see LivecoinWSapi.proto (https://github.com/lvcn1/ws-client-examples/blob/master/proto/LivecoinWSapi.proto) file and comments in it and the example sources.
 
 In a case of any questions make an issue, please.

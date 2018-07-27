@@ -2,8 +2,8 @@
 
 window.onload = function() {
 
-    var MY_API_KEY = "gJx7Wa7qXkPtmTAaK3ADCtr6m5rCYYMy";
-    var MY_SECRET_KEY = "8eLps29wsXszNyEhOl9w8dxsOsM2lTzg";
+    var MY_API_KEY = "sTaMP6f2zMdhjKQva7SSaZENStXx2kbk";
+    var MY_SECRET_KEY = "z4TJJqYTgWqy2KGxuD14TUpddZmVRHxR";
 
     protobuf.load("js/wsApi.proto", function (err, root) {
         var socket = connect("wss://ws.api.livecoin.net/ws/beta2");

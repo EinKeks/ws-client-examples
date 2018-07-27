@@ -29,13 +29,12 @@ def onNewTickers(symbol, events):
             str(events)))
 
 def onNewCandles(symbol, interval, events):
-    None
-#    for t in events:
-#        print ("candles: %s[%s]/%s/%s" % (
-#            symbol,
-#            interval,
-#            datetime.datetime.fromtimestamp(t.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-#            str(events)))
+    for t in events:
+        print ("candles: %s[%s]/%s/%s" % (
+            symbol,
+            interval,
+            datetime.datetime.fromtimestamp(t.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+            str(events)))
 
 def onNewTrades(symbol,events):
     for t in events:

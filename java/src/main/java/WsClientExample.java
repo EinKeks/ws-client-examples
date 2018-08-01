@@ -28,8 +28,7 @@ public class WsClientExample {
 
     public WsClientExample() throws IOException {
         webSocket = new WebSocketFactory()
-//                .createSocket("wss://ws.api.livecoin.net/ws/beta2")
-                .createSocket("ws://localhost:9161/ws/beta2")
+                .createSocket("wss://ws.api.livecoin.net/ws/beta2")
                 .addListener(new WebSocketAdapter() {
                     @Override
                     public void onTextMessage(WebSocket ws, String message) {
@@ -57,6 +56,7 @@ public class WsClientExample {
             webSocket.connect();
             subscribeTicker("BTC/USD", null);
             login(MY_API_KEY,MY_SECRET_KEY, 300000);
+            //here you can make your trade decision
 
         } catch (WebSocketException e) {
             e.printStackTrace();
@@ -66,8 +66,9 @@ public class WsClientExample {
             System.out.print("Press Enter to exit\n");
             br.readLine();
             System.out.println("exiting...");
-            Thread.sleep(2000);
             unsubscribeTicker("BTC/USD");
+            //here you can make your trade decision
+            Thread.sleep(2000);
             stop();
 
         }

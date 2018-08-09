@@ -241,7 +241,8 @@ message WsRequestMetaData {
     }
     required WsRequestMsgType request_type = 1;
     optional string token = 2;
-    optional string sign = 3;
+    optional string deprecatedSign = 3; // deprecated, do not use
+    optional bytes sign = 4;
 }
 
 message WsResponseMetaData {

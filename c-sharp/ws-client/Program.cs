@@ -210,7 +210,7 @@ namespace ws_client
                 ProtoBuf.Serializer.Serialize(msgStream, message);
                 msg = msgStream.ToArray();
             }
-            String sign = ComputeHash(secret, msg);
+            byte[] sign = ComputeHash(secret, msg);
             var meta = new protobuf.ws.WsRequestMetaData
             {
                 RequestType = protobuf.ws.WsRequestMetaData.WsRequestMsgType.Login,
@@ -319,17 +319,16 @@ namespace ws_client
             return Decimal.Parse(number, System.Globalization.NumberStyles.AllowDecimalPoint, System.Globalization.NumberFormatInfo.InvariantInfo);
         }
 
-        private string ComputeHash(string secret, byte[] message)
+        private byte[] ComputeHash(string secret, byte[] message)
         {
             var key = Encoding.UTF8.GetBytes(secret);
-            string hashString;
+            byte[] hash = null;
             using (var hmac = new HMACSHA256(key))
             {
-                var hash = hmac.ComputeHash(message);
-                hashString = ByteArrayToString(hash).ToUpper();
+                hash = hmac.ComputeHash(message);
             }
 
-            return hashString;
+            return hash;
         }
 
         private string ByteArrayToString(byte[] ba)

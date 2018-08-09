@@ -726,16 +726,26 @@ namespace protobuf.ws
         public void ResetToken() => __pbn__Token = null;
         private string __pbn__Token;
 
-        [global::ProtoBuf.ProtoMember(3, Name = @"sign")]
+        [global::ProtoBuf.ProtoMember(3)]
         [global::System.ComponentModel.DefaultValue("")]
-        public string Sign
+        public string deprecatedSign
         {
-            get { return __pbn__Sign ?? ""; }
+            get { return __pbn__deprecatedSign ?? ""; }
+            set { __pbn__deprecatedSign = value; }
+        }
+        public bool ShouldSerializedeprecatedSign() => __pbn__deprecatedSign != null;
+        public void ResetdeprecatedSign() => __pbn__deprecatedSign = null;
+        private string __pbn__deprecatedSign;
+
+        [global::ProtoBuf.ProtoMember(4, Name = @"sign")]
+        public byte[] Sign
+        {
+            get { return __pbn__Sign; }
             set { __pbn__Sign = value; }
         }
         public bool ShouldSerializeSign() => __pbn__Sign != null;
         public void ResetSign() => __pbn__Sign = null;
-        private string __pbn__Sign;
+        private byte[] __pbn__Sign;
 
         [global::ProtoBuf.ProtoContract()]
         public enum WsRequestMsgType

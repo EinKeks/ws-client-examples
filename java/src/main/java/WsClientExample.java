@@ -137,7 +137,7 @@ public class WsClientExample {
             builder.setFrequency(frequency);
         }
         ByteString msg = builder.build().toByteString();
-        String sign = hashIt(MY_SECRET_KEY, msg.toByteArray());
+        ByteString sign = hashIt(MY_SECRET_KEY, msg.toByteArray());
         LcWsApi.WsRequestMetaData meta = LcWsApi.WsRequestMetaData
                 .newBuilder()
                 .setRequestType(LcWsApi.WsRequestMetaData.WsRequestMsgType.SUBSCRIBE_TICKER)
@@ -154,7 +154,7 @@ public class WsClientExample {
                 .setCurrencyPair(currencyPair)
                 .build()
                 .toByteString();
-        String sign = hashIt(MY_SECRET_KEY, msg.toByteArray());
+        ByteString sign = hashIt(MY_SECRET_KEY, msg.toByteArray());
         LcWsApi.WsRequestMetaData meta = LcWsApi.WsRequestMetaData
                 .newBuilder()
                 .setRequestType(LcWsApi.WsRequestMetaData.WsRequestMsgType.UNSUBSCRIBE)
@@ -171,7 +171,7 @@ public class WsClientExample {
                 .setTtl(ttl)
                 .build();
         ByteString msg = LcWsApi.LoginRequest.newBuilder().setApiKey(key).setExpireControl(requestExpired).build().toByteString();
-        String sign = hashIt(secret, msg.toByteArray());
+        ByteString sign = hashIt(secret, msg.toByteArray());
         LcWsApi.WsRequestMetaData meta = LcWsApi.WsRequestMetaData
                 .newBuilder()
                 .setRequestType(LcWsApi.WsRequestMetaData.WsRequestMsgType.LOGIN)
@@ -226,13 +226,11 @@ public class WsClientExample {
         return ticker;
     }
 
-    private String hashIt(String secret, byte[] data) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+    private  ByteString hashIt(String secret, byte[] data) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256");
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(secretKey);
         byte[] hmacData = mac.doFinal(data);
-        String hash = "";
-        for (byte aHmacData : hmacData) hash = hash.concat(String.format("%02X", aHmacData));
-        return hash;
+        return ByteString.copyFrom(hmacData);
     }
 }

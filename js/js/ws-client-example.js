@@ -130,7 +130,7 @@ window.onload = function() {
             var keyArray = stringToByteArray(secretKey);
             var preparedKey = byteArrayToWordArray(keyArray);
             var hash = CryptoJS.HmacSHA256(preparedMsg, preparedKey);
-            var sign = toHexString(wordArrayToByteArray(hash)).toUpperCase();
+            var sign = wordArrayToByteArray(hash);
             var metaPayload = {
                 requestType: msgType,
                 token: token,
@@ -461,11 +461,6 @@ window.onload = function() {
                 i++;
             }
             return [].concat.apply([], result);
-        }
-        function toHexString(byteArray) {
-            return Array.from(byteArray, function(byte) {
-                return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-            }).join('')
         }
         function stringToByteArray(string) {
             var data = [];

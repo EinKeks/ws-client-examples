@@ -8,9 +8,9 @@ First, you should connect to websocket (address is wss://ws.api.livecoin.net/ws/
 
 Then, you can subscribe/unsubscribe to any channel of an existing currency pair in the exchange.
 
-If you want to place/cancel limit orders, you should first login (providing your API key, signed by your private key) and then use methods for placing/cancelling orders (you also must signed your requests by your private key).
+If you want to place/cancel limit orders or use other private API, you should first login (providing your API key, signed by your private key) and then use methods for placing/cancelling orders (you also must signed your requests by your private key).
 
-You can find example clients for Python and JavaScript in this repo (simple clients for Java and C# coming soon).
+You can find example clients for Python and JavaScript in this repo. Simple clients for Java and C# are also here.
 
 `WARNING!!!` examples contain invalid authentication keys. You have to provide your keys to test private api part. Be VERY careful - examples make orders and trades!!!!
 
@@ -19,6 +19,8 @@ You can find example clients for Python and JavaScript in this repo (simple clie
 1. You can resubscribe to each channel only once per minute (there is no restrictions for different channels).
 
 2. Outgoing queue size of websocket is limited to 4096 messages. When the queue is full, connection is dropped.
+
+Changelog is here: https://github.com/lvcn1/ws-client-examples/blob/master/changes.md
 
 ## 1. General protocol information
 
@@ -74,7 +76,7 @@ Python example (message for putting buy limit order):
     msg.meta.request_type = LivecoinWSapi_pb2.WsRequestMetaData.PUT_LIMIT_ORDER
     msg.meta.token = "msg3"
     msg.msg = request.SerializeToString()
-    msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).hexdigest().upper()
+    msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).digest()
     websocket.send_binary(msg.SerializeToString())
 
 Python example of LoginRequest (you have to send it only once per connection):
@@ -86,7 +88,7 @@ Python example of LoginRequest (you have to send it only once per connection):
     msg.meta.request_type = LivecoinWSapi_pb2.WsRequestMetaData.LOGIN
     msg.meta.token = "logon"
     msg.msg = request.SerializeToString()
-    msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).hexdigest().upper()
+    msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).digest()
     websocket.send_binary(msg.SerializeToString())
 
 This looks here a little messy, but with wrappers (you can see them in examples), usage is enough comfortable.

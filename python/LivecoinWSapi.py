@@ -189,7 +189,7 @@ def sendSigned(msgtype, request, token, ttl):
     request.expire_control.ttl = ttl
     msg.msg = request.SerializeToString()
     # now sign message
-    msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).hexdigest().upper()
+    msg.meta.sign = hmac.new(MY_SECRET_KEY, msg=msg.msg, digestmod=hashlib.sha256).digest()
     # send it
     ws.send_binary(msg.SerializeToString())
 
@@ -213,6 +213,32 @@ def cancelLimitOrder(symbol, id, token = None, ttl=10000): # ttl is in milliseco
     msg.id = id
     sendSigned(LivecoinWSapi_pb2.WsRequestMetaData.CANCEL_LIMIT_ORDER, msg, token, ttl)
 
+def getBalance(currency, token = None, ttl=10000): # ttl is in milliseconds
+    msg = LivecoinWSapi_pb2.BalanceRequest()
+    msg.currency = currency
+    sendSigned(LivecoinWSapi_pb2.WsRequestMetaData.BALANCE, msg, token, ttl)
+
+def getBalances(currency, even_zero = False, token = None, ttl=10000): # ttl is in milliseconds
+    msg = LivecoinWSapi_pb2.BalancesRequest()
+    if currency is not None:
+        msg.currency = currency
+    msg.only_not_zero = not even_zero
+    sendSigned(LivecoinWSapi_pb2.WsRequestMetaData.BALANCES, msg, token, ttl)
+
+def getLastTrades(currency_pair, onlyBuy, forHour = False, token = None, ttl=10000): # ttl is in milliseconds
+    msg = LivecoinWSapi_pb2.LastTradesRequest()
+    if onlyBuy is not None:
+        if onlyBuy:
+            msg.trade_type = LivecoinWSapi_pb2.LastTradesRequest.BUY
+        else:
+            msg.trade_type = LivecoinWSapi_pb2.LastTradesRequest.SELL
+    if forHour:
+        msg.interval = LivecoinWSapi_pb2.LastTradesRequest.HOUR
+    else:
+        msg.interval = LivecoinWSapi_pb2.LastTradesRequest.MINUTE
+
+    msg.currency_pair = currency_pair
+    sendSigned(LivecoinWSapi_pb2.WsRequestMetaData.LAST_TRADES, msg, token, ttl)
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Private api handlers ----------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -228,6 +254,11 @@ def onSuccessfullOrderPut(token, order_id, amount_left):
 def onSuccessfullOrderCancel(token, order_id, amount_left):
     print ("We cancelled order with id %d, quantity left was %s" % (order_id, amount_left))
 
+def onBalances(token, balances):
+    print("fresh balances: " + str(balances))
+
+def onLastTrades(token, trades):
+    print("fresh trades: " + str(trades))
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Incoming messages decoder -----------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -300,6 +331,23 @@ def handleIn(rawmsg):
         event = LivecoinWSapi_pb2.OrderBookNotification()
         event.ParseFromString(msg)
         onSuccessfullOrderCancel(token, event.order_id, event.amount_left)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.BALANCE_RESPONSE:
+        event = LivecoinWSapi_pb2.BalanceResponse()
+        event.ParseFromString(msg)
+        onBalances(token, [event])
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.BALANCES_RESPONSE:
+        event = LivecoinWSapi_pb2.BalancesResponse()
+        event.ParseFromString(msg)
+        onBalances(token, event.balances)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.BALANCES_RESPONSE:
+        event = LivecoinWSapi_pb2.BalancesResponse()
+        event.ParseFromString(msg)
+        onBalances(token, event.balances)
+    elif msgtype == LivecoinWSapi_pb2.WsResponseMetaData.LAST_TRADES_RESPONSE:
+        event = LivecoinWSapi_pb2.LastTradesResponse()
+        event.ParseFromString(msg)
+        onLastTrades(token, event.trades)
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Test commands and subscriptions  ----------------------------------------------------
@@ -334,6 +382,15 @@ def doTestOnToken(token):
         unsubscribeTicker('BTC/RUR')
 
 def doAuthenticatedTest():
+    getBalance("BTC")
+    getBalances("BTC", True)
+    getBalances("BTC", False)
+    getBalances(None, True)
+    getBalances(None, False)
+    getLastTrades("BTC/USD", onlyBuy=False)
+    getLastTrades("BTC/USD", onlyBuy=True)
+    getLastTrades("BTC/USD", onlyBuy=None)
+    getLastTrades("BTC/USD", onlyBuy=True, forHour=True)
     putLimitOrder("BTC/EUR", isBuy=True, amount=0.1, price=10, token="badorder", ttl=10000) # WHY NOT?
     putLimitOrder("BTC/EUR", isBuy=True, amount=1, price=10, token="fakeorder", ttl=10000) # WHY NOT?
     putLimitOrder("BTC/USD", isBuy=True, amount=0.001, price=8300, token="myfirstbuy", ttl=10000)

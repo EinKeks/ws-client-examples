@@ -103,6 +103,35 @@ message CancelLimitOrderRequest {
     required int64 id = 3;
 }
 
+message BalanceRequest {
+    // BALANCE
+    required RequestExpired expire_control = 1;
+    required string currency = 2;
+}
+
+message BalancesRequest {
+     // BALANCES
+    required RequestExpired expire_control = 1;
+    optional string currency = 2;
+    optional bool only_not_zero = 3;
+}
+
+message LastTradesRequest{
+    // LAST_TRADES
+    enum TradeType {
+       SELL = 1;
+       BUY = 2;
+    }
+    enum Interval {
+        MINUTE = 1;
+        HOUR = 2;
+    }
+    required RequestExpired expire_control = 1;
+    required string currency_pair = 2;
+    optional Interval interval = 3;
+    optional TradeType trade_type = 4;
+}
+
 message TickerEvent {
     required int64  timestamp = 1;
     optional string last = 2;
@@ -269,6 +298,29 @@ message CancelLimitOrderResponse {
     required string amount_left = 2;
 }
 
+message BalanceResponse {
+    // BALANCE_RESPONSE
+    enum BalanceType {
+      TOTAL = 1;
+      AVAILABLE = 2;
+      AVAILABLE_WITHDRAWAL = 3;
+      TRADE = 4;
+    }
+    required BalanceType type = 1;
+    required string currency = 2;
+    required string value = 3;
+}
+
+message BalancesResponse {
+    // BALANCES_RESPONSE
+    repeated BalanceResponse balances = 1;
+}
+
+message LastTradesResponse {
+    // LAST_TRADES_RESPONSE
+    repeated TradeEvent trades = 1;
+}
+
 message WsRequestMetaData {
     enum WsRequestMsgType {
         SUBSCRIBE_TICKER = 1;
@@ -280,10 +332,14 @@ message WsRequestMetaData {
         LOGIN = 7;
         PUT_LIMIT_ORDER = 8;
         CANCEL_LIMIT_ORDER = 9;
+        BALANCE = 10;
+        BALANCES = 11;
+        LAST_TRADES = 12;
     }
     required WsRequestMsgType request_type = 1;
     optional string token = 2;
-    optional string sign = 3;
+    optional string deprecatedSign = 3; // deprecated, do not use
+    optional bytes sign = 4;
 }
 
 message WsResponseMetaData {
@@ -303,6 +359,9 @@ message WsResponseMetaData {
         LOGIN_RESPONSE = 13;
         PUT_LIMIT_ORDER_RESPONSE = 14;
         CANCEL_LIMIT_ORDER_RESPONSE = 15;
+        BALANCE_RESPONSE = 16;
+        BALANCES_RESPONSE = 17;
+        LAST_TRADES_RESPONSE = 18;
     }
     required WsResponseMsgType response_type = 1;
     optional string token = 2;

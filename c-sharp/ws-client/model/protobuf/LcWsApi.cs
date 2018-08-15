@@ -236,6 +236,281 @@ namespace protobuf.ws
     }
 
     [global::ProtoBuf.ProtoContract()]
+    public partial class BalanceRequest : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"expire_control", IsRequired = true)]
+        public RequestExpired ExpireControl { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"currency", IsRequired = true)]
+        public string Currency { get; set; }
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class BalancesRequest : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"expire_control", IsRequired = true)]
+        public RequestExpired ExpireControl { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"currency")]
+        [global::System.ComponentModel.DefaultValue("")]
+        public string Currency
+        {
+            get { return __pbn__Currency ?? ""; }
+            set { __pbn__Currency = value; }
+        }
+        public bool ShouldSerializeCurrency() => __pbn__Currency != null;
+        public void ResetCurrency() => __pbn__Currency = null;
+        private string __pbn__Currency;
+
+        [global::ProtoBuf.ProtoMember(3, Name = @"only_not_zero")]
+        public bool OnlyNotZero
+        {
+            get { return __pbn__OnlyNotZero.GetValueOrDefault(); }
+            set { __pbn__OnlyNotZero = value; }
+        }
+        public bool ShouldSerializeOnlyNotZero() => __pbn__OnlyNotZero != null;
+        public void ResetOnlyNotZero() => __pbn__OnlyNotZero = null;
+        private bool? __pbn__OnlyNotZero;
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class LastTradesRequest : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"expire_control", IsRequired = true)]
+        public RequestExpired ExpireControl { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"currency_pair", IsRequired = true)]
+        public string CurrencyPair { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3)]
+        [global::System.ComponentModel.DefaultValue(Interval.Minute)]
+        public Interval interval
+        {
+            get { return __pbn__interval ?? Interval.Minute; }
+            set { __pbn__interval = value; }
+        }
+        public bool ShouldSerializeinterval() => __pbn__interval != null;
+        public void Resetinterval() => __pbn__interval = null;
+        private Interval? __pbn__interval;
+
+        [global::ProtoBuf.ProtoMember(4)]
+        [global::System.ComponentModel.DefaultValue(TradeType.Sell)]
+        public TradeType trade_type
+        {
+            get { return __pbn__trade_type ?? TradeType.Sell; }
+            set { __pbn__trade_type = value; }
+        }
+        public bool ShouldSerializetrade_type() => __pbn__trade_type != null;
+        public void Resettrade_type() => __pbn__trade_type = null;
+        private TradeType? __pbn__trade_type;
+
+        [global::ProtoBuf.ProtoContract()]
+        public enum TradeType
+        {
+            [global::ProtoBuf.ProtoEnum(Name = @"SELL")]
+            Sell = 1,
+            [global::ProtoBuf.ProtoEnum(Name = @"BUY")]
+            Buy = 2,
+        }
+
+        [global::ProtoBuf.ProtoContract()]
+        public enum Interval
+        {
+            [global::ProtoBuf.ProtoEnum(Name = @"MINUTE")]
+            Minute = 1,
+            [global::ProtoBuf.ProtoEnum(Name = @"HOUR")]
+            Hour = 2,
+        }
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class TradesRequest : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"expire_control", IsRequired = true)]
+        public RequestExpired ExpireControl { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"currency_pair")]
+        [global::System.ComponentModel.DefaultValue("")]
+        public string CurrencyPair
+        {
+            get { return __pbn__CurrencyPair ?? ""; }
+            set { __pbn__CurrencyPair = value; }
+        }
+        public bool ShouldSerializeCurrencyPair() => __pbn__CurrencyPair != null;
+        public void ResetCurrencyPair() => __pbn__CurrencyPair = null;
+        private string __pbn__CurrencyPair;
+
+        [global::ProtoBuf.ProtoMember(3)]
+        [global::System.ComponentModel.DefaultValue(Direction.Ask)]
+        public Direction direction
+        {
+            get { return __pbn__direction ?? Direction.Ask; }
+            set { __pbn__direction = value; }
+        }
+        public bool ShouldSerializedirection() => __pbn__direction != null;
+        public void Resetdirection() => __pbn__direction = null;
+        private Direction? __pbn__direction;
+
+        [global::ProtoBuf.ProtoMember(4, Name = @"offset")]
+        public int Offset
+        {
+            get { return __pbn__Offset.GetValueOrDefault(); }
+            set { __pbn__Offset = value; }
+        }
+        public bool ShouldSerializeOffset() => __pbn__Offset != null;
+        public void ResetOffset() => __pbn__Offset = null;
+        private int? __pbn__Offset;
+
+        [global::ProtoBuf.ProtoMember(5, Name = @"limit")]
+        public int Limit
+        {
+            get { return __pbn__Limit.GetValueOrDefault(); }
+            set { __pbn__Limit = value; }
+        }
+        public bool ShouldSerializeLimit() => __pbn__Limit != null;
+        public void ResetLimit() => __pbn__Limit = null;
+        private int? __pbn__Limit;
+
+        [global::ProtoBuf.ProtoContract()]
+        public enum Direction
+        {
+            [global::ProtoBuf.ProtoEnum(Name = @"ASK")]
+            Ask = 1,
+            [global::ProtoBuf.ProtoEnum(Name = @"DESC")]
+            Desc = 2,
+        }
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class ClientOrdersRequest : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"expire_control", IsRequired = true)]
+        public RequestExpired ExpireControl { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"currency_pair")]
+        [global::System.ComponentModel.DefaultValue("")]
+        public string CurrencyPair
+        {
+            get { return __pbn__CurrencyPair ?? ""; }
+            set { __pbn__CurrencyPair = value; }
+        }
+        public bool ShouldSerializeCurrencyPair() => __pbn__CurrencyPair != null;
+        public void ResetCurrencyPair() => __pbn__CurrencyPair = null;
+        private string __pbn__CurrencyPair;
+
+        [global::ProtoBuf.ProtoMember(3, Name = @"status")]
+        [global::System.ComponentModel.DefaultValue(OrderStatus.Open)]
+        public OrderStatus Status
+        {
+            get { return __pbn__Status ?? OrderStatus.Open; }
+            set { __pbn__Status = value; }
+        }
+        public bool ShouldSerializeStatus() => __pbn__Status != null;
+        public void ResetStatus() => __pbn__Status = null;
+        private OrderStatus? __pbn__Status;
+
+        [global::ProtoBuf.ProtoMember(4, Name = @"issued_from")]
+        public long IssuedFrom
+        {
+            get { return __pbn__IssuedFrom.GetValueOrDefault(); }
+            set { __pbn__IssuedFrom = value; }
+        }
+        public bool ShouldSerializeIssuedFrom() => __pbn__IssuedFrom != null;
+        public void ResetIssuedFrom() => __pbn__IssuedFrom = null;
+        private long? __pbn__IssuedFrom;
+
+        [global::ProtoBuf.ProtoMember(5, Name = @"issued_to")]
+        public long IssuedTo
+        {
+            get { return __pbn__IssuedTo.GetValueOrDefault(); }
+            set { __pbn__IssuedTo = value; }
+        }
+        public bool ShouldSerializeIssuedTo() => __pbn__IssuedTo != null;
+        public void ResetIssuedTo() => __pbn__IssuedTo = null;
+        private long? __pbn__IssuedTo;
+
+        [global::ProtoBuf.ProtoMember(6)]
+        [global::System.ComponentModel.DefaultValue(OrderType.Bid)]
+        public OrderType order_type
+        {
+            get { return __pbn__order_type ?? OrderType.Bid; }
+            set { __pbn__order_type = value; }
+        }
+        public bool ShouldSerializeorder_type() => __pbn__order_type != null;
+        public void Resetorder_type() => __pbn__order_type = null;
+        private OrderType? __pbn__order_type;
+
+        [global::ProtoBuf.ProtoMember(7, Name = @"start_row")]
+        public int StartRow
+        {
+            get { return __pbn__StartRow.GetValueOrDefault(); }
+            set { __pbn__StartRow = value; }
+        }
+        public bool ShouldSerializeStartRow() => __pbn__StartRow != null;
+        public void ResetStartRow() => __pbn__StartRow = null;
+        private int? __pbn__StartRow;
+
+        [global::ProtoBuf.ProtoMember(8, Name = @"end_row")]
+        public int EndRow
+        {
+            get { return __pbn__EndRow.GetValueOrDefault(); }
+            set { __pbn__EndRow = value; }
+        }
+        public bool ShouldSerializeEndRow() => __pbn__EndRow != null;
+        public void ResetEndRow() => __pbn__EndRow = null;
+        private int? __pbn__EndRow;
+
+        [global::ProtoBuf.ProtoContract()]
+        public enum OrderStatus
+        {
+            [global::ProtoBuf.ProtoEnum(Name = @"OPEN")]
+            Open = 1,
+            [global::ProtoBuf.ProtoEnum(Name = @"CLOSED")]
+            Closed = 2,
+            [global::ProtoBuf.ProtoEnum(Name = @"CANCELLED")]
+            Cancelled = 4,
+            [global::ProtoBuf.ProtoEnum(Name = @"PARTIALLY")]
+            Partially = 5,
+            [global::ProtoBuf.ProtoEnum(Name = @"NOT_CANCELLED")]
+            NotCancelled = 6,
+        }
+
+        [global::ProtoBuf.ProtoContract()]
+        public enum OrderType
+        {
+            [global::ProtoBuf.ProtoEnum(Name = @"BID")]
+            Bid = 1,
+            [global::ProtoBuf.ProtoEnum(Name = @"ASK")]
+            Ask = 2,
+        }
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
     public partial class TickerEvent : global::ProtoBuf.IExtensible
     {
         private global::ProtoBuf.IExtension __pbn__extensionData;
@@ -706,6 +981,222 @@ namespace protobuf.ws
     }
 
     [global::ProtoBuf.ProtoContract()]
+    public partial class BalanceResponse : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"type", IsRequired = true)]
+        public BalanceType Type { get; set; } = BalanceType.Total;
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"currency", IsRequired = true)]
+        public string Currency { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3, Name = @"value", IsRequired = true)]
+        public string Value { get; set; }
+
+        [global::ProtoBuf.ProtoContract()]
+        public enum BalanceType
+        {
+            [global::ProtoBuf.ProtoEnum(Name = @"TOTAL")]
+            Total = 1,
+            [global::ProtoBuf.ProtoEnum(Name = @"AVAILABLE")]
+            Available = 2,
+            [global::ProtoBuf.ProtoEnum(Name = @"AVAILABLE_WITHDRAWAL")]
+            AvailableWithdrawal = 3,
+            [global::ProtoBuf.ProtoEnum(Name = @"TRADE")]
+            Trade = 4,
+        }
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class BalancesResponse : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"balances")]
+        public global::System.Collections.Generic.List<BalanceResponse> Balances { get; } = new global::System.Collections.Generic.List<BalanceResponse>();
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class LastTradesResponse : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"trades")]
+        public global::System.Collections.Generic.List<TradeEvent> Trades { get; } = new global::System.Collections.Generic.List<TradeEvent>();
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class Trade : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"id", IsRequired = true)]
+        public long Id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"trade_type", IsRequired = true)]
+        public TradeEvent.TradeType TradeType { get; set; } = TradeEvent.TradeType.Buy;
+
+        [global::ProtoBuf.ProtoMember(3, Name = @"timestamp", IsRequired = true)]
+        public long Timestamp { get; set; }
+
+        [global::ProtoBuf.ProtoMember(4, Name = @"currency_pair", IsRequired = true)]
+        public string CurrencyPair { get; set; }
+
+        [global::ProtoBuf.ProtoMember(5, Name = @"price", IsRequired = true)]
+        public string Price { get; set; }
+
+        [global::ProtoBuf.ProtoMember(6, Name = @"quantity", IsRequired = true)]
+        public string Quantity { get; set; }
+
+        [global::ProtoBuf.ProtoMember(7, Name = @"commission", IsRequired = true)]
+        public string Commission { get; set; }
+
+        [global::ProtoBuf.ProtoMember(8, Name = @"bonus", IsRequired = true)]
+        public string Bonus { get; set; }
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class TradesResponse : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"trades")]
+        public global::System.Collections.Generic.List<Trade> Trades { get; } = new global::System.Collections.Generic.List<Trade>();
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class Order : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, Name = @"id", IsRequired = true)]
+        public long Id { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, Name = @"currency_pair", IsRequired = true)]
+        public string CurrencyPair { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3, Name = @"good_until_time", IsRequired = true)]
+        public long GoodUntilTime { get; set; }
+
+        [global::ProtoBuf.ProtoMember(4, IsRequired = true)]
+        public OrderType order_type { get; set; } = OrderType.MarketBuy;
+
+        [global::ProtoBuf.ProtoMember(5, IsRequired = true)]
+        public OrderStatus order_status { get; set; } = OrderStatus.New;
+
+        [global::ProtoBuf.ProtoMember(6, Name = @"issue_time", IsRequired = true)]
+        public long IssueTime { get; set; }
+
+        [global::ProtoBuf.ProtoMember(7, Name = @"price")]
+        [global::System.ComponentModel.DefaultValue("")]
+        public string Price
+        {
+            get { return __pbn__Price ?? ""; }
+            set { __pbn__Price = value; }
+        }
+        public bool ShouldSerializePrice() => __pbn__Price != null;
+        public void ResetPrice() => __pbn__Price = null;
+        private string __pbn__Price;
+
+        [global::ProtoBuf.ProtoMember(8, Name = @"quantity", IsRequired = true)]
+        public string Quantity { get; set; }
+
+        [global::ProtoBuf.ProtoMember(9, Name = @"remaining_quantity", IsRequired = true)]
+        public string RemainingQuantity { get; set; }
+
+        [global::ProtoBuf.ProtoMember(10, Name = @"commission_by_trade", IsRequired = true)]
+        public string CommissionByTrade { get; set; }
+
+        [global::ProtoBuf.ProtoMember(11, Name = @"bonus_by_trade", IsRequired = true)]
+        public string BonusByTrade { get; set; }
+
+        [global::ProtoBuf.ProtoMember(12, Name = @"bonus_rate", IsRequired = true)]
+        public string BonusRate { get; set; }
+
+        [global::ProtoBuf.ProtoMember(13, Name = @"commission_rate", IsRequired = true)]
+        public string CommissionRate { get; set; }
+
+        [global::ProtoBuf.ProtoMember(14, Name = @"last_modification_time", IsRequired = true)]
+        public long LastModificationTime { get; set; }
+
+        [global::ProtoBuf.ProtoContract()]
+        public enum OrderType
+        {
+            [global::ProtoBuf.ProtoEnum(Name = @"MARKET_BUY")]
+            MarketBuy = 1,
+            [global::ProtoBuf.ProtoEnum(Name = @"MARKET_SELL")]
+            MarketSell = 2,
+            [global::ProtoBuf.ProtoEnum(Name = @"LIMIT_BUY")]
+            LimitBuy = 3,
+            [global::ProtoBuf.ProtoEnum(Name = @"LIMIT_SELL")]
+            LimitSell = 4,
+            [global::ProtoBuf.ProtoEnum(Name = @"UNKNOWN_TYPE")]
+            UnknownType = 5,
+        }
+
+        [global::ProtoBuf.ProtoContract()]
+        public enum OrderStatus
+        {
+            [global::ProtoBuf.ProtoEnum(Name = @"NEW")]
+            New = 1,
+            [global::ProtoBuf.ProtoEnum(Name = @"OPEN")]
+            Open = 2,
+            [global::ProtoBuf.ProtoEnum(Name = @"EXPIRED")]
+            Expired = 3,
+            [global::ProtoBuf.ProtoEnum(Name = @"CANCELLED")]
+            Cancelled = 4,
+            [global::ProtoBuf.ProtoEnum(Name = @"EXECUTED")]
+            Executed = 5,
+            [global::ProtoBuf.ProtoEnum(Name = @"PARTIALLY_FILLED")]
+            PartiallyFilled = 6,
+            [global::ProtoBuf.ProtoEnum(Name = @"PARTIALLY_FILLED_AND_CANCELLED")]
+            PartiallyFilledAndCancelled = 7,
+            [global::ProtoBuf.ProtoEnum(Name = @"PARTIALLY_FILLED_AND_EXPIRED")]
+            PartiallyFilledAndExpired = 8,
+        }
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
+    public partial class ClientOrdersResponse : global::ProtoBuf.IExtensible
+    {
+        private global::ProtoBuf.IExtension __pbn__extensionData;
+        global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+            => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
+
+        [global::ProtoBuf.ProtoMember(1, IsRequired = true)]
+        public int totalRows { get; set; }
+
+        [global::ProtoBuf.ProtoMember(2, IsRequired = true)]
+        public int startRow { get; set; }
+
+        [global::ProtoBuf.ProtoMember(3, IsRequired = true)]
+        public int endRow { get; set; }
+
+        [global::ProtoBuf.ProtoMember(4, Name = @"orders")]
+        public global::System.Collections.Generic.List<Order> Orders { get; } = new global::System.Collections.Generic.List<Order>();
+
+    }
+
+    [global::ProtoBuf.ProtoContract()]
     public partial class WsRequestMetaData : global::ProtoBuf.IExtensible
     {
         private global::ProtoBuf.IExtension __pbn__extensionData;
@@ -768,6 +1259,16 @@ namespace protobuf.ws
             PutLimitOrder = 8,
             [global::ProtoBuf.ProtoEnum(Name = @"CANCEL_LIMIT_ORDER")]
             CancelLimitOrder = 9,
+            [global::ProtoBuf.ProtoEnum(Name = @"BALANCE")]
+            Balance = 10,
+            [global::ProtoBuf.ProtoEnum(Name = @"BALANCES")]
+            Balances = 11,
+            [global::ProtoBuf.ProtoEnum(Name = @"LAST_TRADES")]
+            LastTrades = 12,
+            [global::ProtoBuf.ProtoEnum(Name = @"TRADES")]
+            Trades = 13,
+            [global::ProtoBuf.ProtoEnum(Name = @"CLIENT_ORDERS")]
+            ClientOrders = 14,
         }
 
     }
@@ -826,6 +1327,16 @@ namespace protobuf.ws
             PutLimitOrderResponse = 14,
             [global::ProtoBuf.ProtoEnum(Name = @"CANCEL_LIMIT_ORDER_RESPONSE")]
             CancelLimitOrderResponse = 15,
+            [global::ProtoBuf.ProtoEnum(Name = @"BALANCE_RESPONSE")]
+            BalanceResponse = 16,
+            [global::ProtoBuf.ProtoEnum(Name = @"BALANCES_RESPONSE")]
+            BalancesResponse = 17,
+            [global::ProtoBuf.ProtoEnum(Name = @"LAST_TRADES_RESPONSE")]
+            LastTradesResponse = 18,
+            [global::ProtoBuf.ProtoEnum(Name = @"TRADES_RESPONSE")]
+            TradesResponse = 19,
+            [global::ProtoBuf.ProtoEnum(Name = @"CLIENT_ORDERS_RESPONSE")]
+            ClientOrdersResponse = 20,
         }
 
     }

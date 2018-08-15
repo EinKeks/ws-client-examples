@@ -224,6 +224,132 @@ window.onload = function() {
             doPrivateMessage(secretKey, token, cancelLimitOrderPayload, "protobuf.ws.CancelLimitOrderRequest", requestType);
         };
 
+        var balance = function(token, secretKey, cp, ttl) {
+            var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
+            var expiredPayload = {
+                now:Date.now(),
+                ttl:ttl
+            };
+            var err = RequestExpired.verify(expiredPayload);
+            if(err) {
+                throw Error(err)
+            }
+
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var requestExpired = RequestExpired.create(expiredPayload);
+            var requestType = WsRequestMetaData.WsRequestMsgType.BALANCE;
+
+            var balancePayload = {
+                expireControl: requestExpired,
+                currency: cp
+            };
+            doPrivateMessage(secretKey, token, balancePayload, "protobuf.ws.BalanceRequest", requestType)
+        };
+
+        var balances = function(token, secretKey, cp, onlyNotZero, ttl) {
+            var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
+            var expiredPayload = {
+                now:Date.now(),
+                ttl:ttl
+            };
+
+            var err = RequestExpired.verify(expiredPayload);
+            if(err) {
+                throw Error(err)
+            }
+
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var requestExpired = RequestExpired.create(expiredPayload);
+            var requestType = WsRequestMetaData.WsRequestMsgType.BALANCES;
+
+            var balancesPayload = {
+                expireControl: requestExpired,
+                currencyPair: cp,
+                onlyNotZero: onlyNotZero
+            };
+            doPrivateMessage(secretKey, token, balancesPayload, "protobuf.ws.BalancesRequest", requestType)
+        };
+
+        var lastTrades = function(token, secretKey, cp, type, interval, ttl) {
+            var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
+            var expiredPayload = {
+                now:Date.now(),
+                ttl:ttl
+            };
+
+            var err = RequestExpired.verify(expiredPayload);
+            if(err) {
+                throw Error(err)
+            }
+
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var requestExpired = RequestExpired.create(expiredPayload);
+            var requestType = WsRequestMetaData.WsRequestMsgType.LAST_TRADES;
+
+            var lastTradesPayload = {
+                expireControl: requestExpired,
+                currencyPair: cp,
+                interval: interval,
+                tradeType: type
+            };
+            doPrivateMessage(secretKey, token, lastTradesPayload, "protobuf.ws.LastTradesRequest", requestType)
+        };
+
+        var trades = function(token, secretKey, cp, direction, offset, limit, ttl) {
+            var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
+            var expiredPayload = {
+                now:Date.now(),
+                ttl:ttl
+            };
+
+            var err = RequestExpired.verify(expiredPayload);
+            if(err) {
+                throw Error(err)
+            }
+
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var requestExpired = RequestExpired.create(expiredPayload);
+            var requestType = WsRequestMetaData.WsRequestMsgType.TRADES;
+
+            var tradesPayload = {
+                expireControl: requestExpired,
+                currencyPair: cp,
+                direction: direction,
+                offset: offset,
+                limit: limit
+            };
+            doPrivateMessage(secretKey, token, tradesPayload, "protobuf.ws.TradesRequest", requestType)
+        };
+
+        var clientOrders = function(token, secretKey, cp, status, issuedFrom, issuedTo, orderType, startRow, endRow, ttl) {
+            var RequestExpired = root.lookupType("protobuf.ws.RequestExpired");
+            var expiredPayload = {
+                now:Date.now(),
+                ttl:ttl
+            };
+
+            var err = RequestExpired.verify(expiredPayload);
+            if(err) {
+                throw Error(err)
+            }
+
+            var WsRequestMetaData = root.lookupType("protobuf.ws.WsRequestMetaData");
+            var requestExpired = RequestExpired.create(expiredPayload);
+            var requestType = WsRequestMetaData.WsRequestMsgType.CLIENT_ORDERS;
+
+            var msgPayload = {
+                expireControl: requestExpired,
+                currencyPair: cp,
+                status: status,
+                issuedFrom: issuedFrom,
+                issuedTo: issuedTo,
+                orderType: orderType,
+                startRow: startRow,
+                endRow: endRow
+            };
+            doPrivateMessage(secretKey, token, msgPayload, "protobuf.ws.ClientOrdersRequest", requestType)
+        };
+
         socket.onclose = function (event) {
             if (event.wasClean) {
                 console.log('The connection is closed cleanly');
@@ -340,6 +466,26 @@ window.onload = function() {
                     MessageClass = root.lookupType("protobuf.ws.CancelLimitOrderResponse");
                     message = MessageClass.decode(wsResponseMessage.msg);
                     onCancelLimitOrder(message)
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.BALANCE_RESPONSE) {
+                    MessageClass = root.lookupType("protobuf.ws.BalanceResponse");
+                    message = MessageClass.decode(wsResponseMessage.msg);
+                    onBalance(message)
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.BALANCES_RESPONSE) {
+                    MessageClass = root.lookupType("protobuf.ws.BalancesResponse");
+                    message = MessageClass.decode(wsResponseMessage.msg);
+                    onBalances(message)
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.LAST_TRADES_RESPONSE) {
+                    MessageClass = root.lookupType("protobuf.ws.LastTradesResponse");
+                    message = MessageClass.decode(wsResponseMessage.msg);
+                    onLastTrades(message)
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.TRADES_RESPONSE) {
+                    MessageClass = root.lookupType("protobuf.ws.TradesResponse");
+                    message = MessageClass.decode(wsResponseMessage.msg);
+                    onTrades(message)
+                } else if (wsResponseMessage.meta.responseType === WsResponseMeta.WsResponseMsgType.CLIENT_ORDERS_RESPONSE) {
+                    MessageClass = root.lookupType("protobuf.ws.ClientOrdersResponse");
+                    message = MessageClass.decode(wsResponseMessage.msg);
+                    onClientOrders(message)
                 }
             }
         };
@@ -395,6 +541,12 @@ window.onload = function() {
             //here you can make your trade decision
             var putlimitOrtedType = root.lookupType("protobuf.ws.PutLimitOrderRequest").OrderType.BID;
             putLimitOrder("Limit", MY_SECRET_KEY,"BTC/USD", putlimitOrtedType,"10","20",30000);
+            balance("balance", MY_SECRET_KEY,"BTC/USD", 300000);
+            balances("balances", MY_SECRET_KEY,null,null, 30000);
+            var interval = root.lookupType("protobuf.ws.LastTradesRequest").Interval.HOUR;
+            lastTrades("lastTrades", MY_SECRET_KEY,"BTC/USD", null, interval, 300000);
+            trades("trades", MY_SECRET_KEY, null, null, null, null, 30000)
+            clientOrders("clientOrders", MY_SECRET_KEY, "BTC/USD", null, null, null, null, null, null, 30000)
         }
 
         function onPutLimitOrder(msg) {
@@ -406,6 +558,31 @@ window.onload = function() {
         function onCancelLimitOrder(msg) {
             //here you can make your trade decision
             console.log("The order limit has been canceled: " + JSON.stringify(msg))
+        }
+
+        function onBalance(msg) {
+            //here you can make your trade decision
+            console.log("balance: " + JSON.stringify(msg))
+        }
+
+        function onBalances(msg) {
+            //here you can make your trade decision
+            console.log("balances: " + JSON.stringify(msg))
+        }
+
+        function onLastTrades(msg) {
+            //here you can make your trade decision
+            console.log("lastTrades: " + JSON.stringify(msg))
+        }
+
+        function onTrades(msg) {
+            //here you can make your trade decision
+            console.log("trades: " + JSON.stringify(msg))
+        }
+
+        function onClientOrders(msg) {
+            //here you can make your trade decision
+            console.log("clientOrders: " + JSON.stringify(msg))
         }
 
         function connect(path) {

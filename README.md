@@ -127,7 +127,12 @@ There are no restrictions on the connection time **for now** (really - until the
 
 There are no special restrictions on the subscriptions count.
 
-**For now**, restrictions of the private API usage are the same as for REST api. Later they will be modified (each message will have it's own weight), but they will never be stronger then in REST api.
+## 3. Request rate limit
+
+Restrictions are based on "weight" of requests. You can use 200 points per minute. **For now** you can contact staff via tickets to increase your personal "points per minute", later limit will be dynamic (but not lesser then 200 points per minute).
+
+Weights for requests are defined in comments in .proto file.
+
 
 ### 3. More info
 

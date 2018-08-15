@@ -81,6 +81,7 @@ message LoginRequest {
 }
 
 // Put limit order request - private api, you have to be logged in
+// Weight is 1 point
 message PutLimitOrderRequest {
     // PUT_LIMIT_ORDER
     enum OrderType {
@@ -94,6 +95,7 @@ message PutLimitOrderRequest {
     required string price = 5;
 }
 
+// Weight is 1 point
 message CancelLimitOrderRequest {
     // CANCEL_LIMIT_ORDER
     required RequestExpired expire_control = 1;
@@ -103,12 +105,14 @@ message CancelLimitOrderRequest {
     required int64 id = 3;
 }
 
+// Weight is 1 point
 message BalanceRequest {
     // BALANCE
     required RequestExpired expire_control = 1;
     required string currency = 2;
 }
 
+// Weight is 1 point when currency is given, 5 points for "all currencies"
 message BalancesRequest {
      // BALANCES
     required RequestExpired expire_control = 1;
@@ -116,6 +120,7 @@ message BalancesRequest {
     optional bool only_not_zero = 3;
 }
 
+// Weight is 1 point when interval == MINUTE, 5 points when interval == HOUR
 message LastTradesRequest{
     // LAST_TRADES
     enum TradeType {
@@ -130,6 +135,47 @@ message LastTradesRequest{
     required string currency_pair = 2;
     optional Interval interval = 3;
     optional TradeType trade_type = 4;
+}
+
+
+// Weight is 1 point when currency is given, 5 points for "all currencies"
+message TradesRequest{
+    //TRADES
+
+    enum Direction {
+        ASK = 1;
+        DESC = 2;
+    }
+
+    required RequestExpired expire_control = 1;
+    optional string currency_pair = 2;
+    optional Direction direction = 3;
+    optional int32 offset = 4;
+    optional int32 limit = 5;
+}
+
+// Weight is 1 point when currency is given, 5 points for "all currencies"
+message ClientOrdersRequest{
+    //CLIENT_ORDERS
+    enum OrderStatus{
+        OPEN = 1;
+        CLOSED = 2;
+        CANCELLED = 4;
+        PARTIALLY = 5;
+        NOT_CANCELLED = 6;
+    }
+    enum OrderType{
+        BID = 1; // if you want to buy
+        ASK = 2; // if you want to sell
+    }
+    required RequestExpired expire_control = 1;
+    optional string currency_pair = 2;
+    optional OrderStatus status = 3;
+    optional int64 issued_from = 4;
+    optional int64 issued_to = 5;
+    optional OrderType order_type = 6;
+    optional int32 start_row = 7;
+    optional int32 end_row = 8;
 }
 
 message TickerEvent {
@@ -321,6 +367,63 @@ message LastTradesResponse {
     repeated TradeEvent trades = 1;
 }
 
+message Trade {
+    required int64 id = 1;
+    required TradeEvent.TradeType trade_type = 2 [default = BUY];
+    required int64 timestamp = 3;
+    required string currency_pair = 4;
+    required string price = 5;
+    required string quantity = 6;
+    required string commission = 7;
+    required string bonus = 8;
+}
+
+message TradesResponse {
+    // TRADES_RESPONSE
+    repeated Trade trades = 1;
+}
+
+message Order {
+    enum OrderType {
+        MARKET_BUY = 1;
+        MARKET_SELL = 2;
+        LIMIT_BUY = 3;
+        LIMIT_SELL = 4;
+        UNKNOWN_TYPE = 5;
+    }
+    enum OrderStatus {
+        NEW = 1;
+        OPEN = 2;
+        EXPIRED = 3;
+        CANCELLED = 4;
+        EXECUTED = 5;
+        PARTIALLY_FILLED = 6;
+        PARTIALLY_FILLED_AND_CANCELLED = 7;
+        PARTIALLY_FILLED_AND_EXPIRED = 8;
+    }
+    required int64 id = 1;
+    required string currency_pair = 2;
+    required int64 good_until_time = 3;
+    required OrderType order_type = 4;
+    required OrderStatus order_status = 5;
+    required int64 issue_time = 6;
+    optional string price = 7;
+    required string quantity = 8;
+    required string remaining_quantity = 9;
+    required string commission_by_trade = 10;
+    required string bonus_by_trade = 11;
+    required string bonus_rate = 12;
+    required string commission_rate = 13;
+    required int64 last_modification_time = 14;
+}
+
+message ClientOrdersResponse {
+    required int32 totalRows = 1;
+    required int32 startRow = 2;
+    required int32 endRow = 3;
+    repeated Order orders = 4;
+}
+
 message WsRequestMetaData {
     enum WsRequestMsgType {
         SUBSCRIBE_TICKER = 1;
@@ -335,6 +438,8 @@ message WsRequestMetaData {
         BALANCE = 10;
         BALANCES = 11;
         LAST_TRADES = 12;
+        TRADES = 13;
+        CLIENT_ORDERS = 14;
     }
     required WsRequestMsgType request_type = 1;
     optional string token = 2;
@@ -362,6 +467,8 @@ message WsResponseMetaData {
         BALANCE_RESPONSE = 16;
         BALANCES_RESPONSE = 17;
         LAST_TRADES_RESPONSE = 18;
+        TRADES_RESPONSE = 19;
+        CLIENT_ORDERS_RESPONSE = 20;
     }
     required WsResponseMsgType response_type = 1;
     optional string token = 2;

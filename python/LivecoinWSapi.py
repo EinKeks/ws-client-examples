@@ -239,6 +239,7 @@ def getLastTrades(currency_pair, onlyBuy, forHour = False, token = None, ttl=100
 
     msg.currency_pair = currency_pair
     sendSigned(LivecoinWSapi_pb2.WsRequestMetaData.LAST_TRADES, msg, token, ttl)
+
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------- Private api handlers ----------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------

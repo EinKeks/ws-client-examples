@@ -18,7 +18,7 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='LivecoinWSapi.proto',
   package='protobuf.ws',
-  serialized_pb=_b('\n\x13LivecoinWSapi.proto\x12\x0bprotobuf.ws\"I\n\x1dSubscribeTickerChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12\x11\n\tfrequency\x18\x02 \x01(\x02\"K\n#SubscribeOrderBookRawChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12\r\n\x05\x64\x65pth\x18\x02 \x01(\x05\"H\n SubscribeOrderBookChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12\r\n\x05\x64\x65pth\x18\x02 \x01(\x05\"5\n\x1cSubscribeTradeChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\"\xbc\x01\n\x1dSubscribeCandleChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12K\n\x08interval\x18\x02 \x02(\x0e\x32\x39.protobuf.ws.SubscribeCandleChannelRequest.CandleInterval\x12\x10\n\x05\x64\x65pth\x18\x03 \x01(\x05:\x01\x30\"%\n\x0e\x43\x61ndleInterval\x12\x13\n\x0f\x43\x41NDLE_1_MINUTE\x10\x01\"\xc4\x01\n\x12UnsubscribeRequest\x12\x41\n\x0c\x63hannel_type\x18\x01 \x02(\x0e\x32+.protobuf.ws.UnsubscribeRequest.ChannelType\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\"T\n\x0b\x43hannelType\x12\n\n\x06TICKER\x10\x01\x12\x12\n\x0eORDER_BOOK_RAW\x10\x02\x12\x0e\n\nORDER_BOOK\x10\x03\x12\t\n\x05TRADE\x10\x04\x12\n\n\x06\x43\x41NDLE\x10\x05\"*\n\x0eRequestExpired\x12\x0b\n\x03now\x18\x01 \x02(\x03\x12\x0b\n\x03ttl\x18\x02 \x02(\x05\"T\n\x0cLoginRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x0f\n\x07\x61pi_key\x18\x02 \x02(\t\"\xe1\x01\n\x14PutLimitOrderRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\x12?\n\norder_type\x18\x03 \x02(\x0e\x32+.protobuf.ws.PutLimitOrderRequest.OrderType\x12\x0e\n\x06\x61mount\x18\x04 \x02(\t\x12\r\n\x05price\x18\x05 \x02(\t\"\x1d\n\tOrderType\x12\x07\n\x03\x42ID\x10\x01\x12\x07\n\x03\x41SK\x10\x02\"q\n\x17\x43\x61ncelLimitOrderRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\x12\n\n\x02id\x18\x03 \x02(\x03\"W\n\x0e\x42\x61lanceRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x10\n\x08\x63urrency\x18\x02 \x02(\t\"o\n\x0f\x42\x61lancesRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x10\n\x08\x63urrency\x18\x02 \x01(\t\x12\x15\n\ronly_not_zero\x18\x03 \x01(\x08\"\x9a\x02\n\x11LastTradesRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\x12\x39\n\x08interval\x18\x03 \x01(\x0e\x32\'.protobuf.ws.LastTradesRequest.Interval\x12<\n\ntrade_type\x18\x04 \x01(\x0e\x32(.protobuf.ws.LastTradesRequest.TradeType\"\x1e\n\tTradeType\x12\x08\n\x04SELL\x10\x01\x12\x07\n\x03\x42UY\x10\x02\" \n\x08Interval\x12\n\n\x06MINUTE\x10\x01\x12\x08\n\x04HOUR\x10\x02\"\xad\x01\n\x0bTickerEvent\x12\x11\n\ttimestamp\x18\x01 \x02(\x03\x12\x0c\n\x04last\x18\x02 \x01(\t\x12\x0c\n\x04high\x18\x03 \x01(\t\x12\x0b\n\x03low\x18\x04 \x01(\t\x12\x0e\n\x06volume\x18\x05 \x01(\t\x12\x0c\n\x04vwap\x18\x06 \x01(\t\x12\x0f\n\x07max_bid\x18\x07 \x01(\t\x12\x0f\n\x07min_ask\x18\x08 \x01(\t\x12\x10\n\x08\x62\x65st_bid\x18\t \x01(\t\x12\x10\n\x08\x62\x65st_ask\x18\n \x01(\t\"`\n\x1fTickerChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12&\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x18.protobuf.ws.TickerEvent\"\xb5\x01\n\x11OrderBookRawEvent\x12\x41\n\norder_type\x18\x01 \x02(\x0e\x32(.protobuf.ws.OrderBookRawEvent.OrderType:\x03\x42ID\x12\n\n\x02id\x18\x02 \x02(\x03\x12\x11\n\ttimestamp\x18\x03 \x02(\x03\x12\r\n\x05price\x18\x04 \x01(\t\x12\x10\n\x08quantity\x18\x05 \x02(\t\"\x1d\n\tOrderType\x12\x07\n\x03\x42ID\x10\x01\x12\x07\n\x03\x41SK\x10\x02\"l\n%OrderBookRawChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12,\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x1e.protobuf.ws.OrderBookRawEvent\"\xa3\x01\n\x0eOrderBookEvent\x12>\n\norder_type\x18\x01 \x02(\x0e\x32%.protobuf.ws.OrderBookEvent.OrderType:\x03\x42ID\x12\x11\n\ttimestamp\x18\x02 \x02(\x03\x12\r\n\x05price\x18\x03 \x02(\t\x12\x10\n\x08quantity\x18\x04 \x02(\t\"\x1d\n\tOrderType\x12\x07\n\x03\x42ID\x10\x01\x12\x07\n\x03\x41SK\x10\x02\"f\n\"OrderBookChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12)\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x1b.protobuf.ws.OrderBookEvent\"\xa8\x01\n\nTradeEvent\x12\n\n\x02id\x18\x01 \x02(\x03\x12:\n\ntrade_type\x18\x02 \x02(\x0e\x32!.protobuf.ws.TradeEvent.TradeType:\x03\x42UY\x12\x11\n\ttimestamp\x18\x03 \x02(\x03\x12\r\n\x05price\x18\x04 \x02(\t\x12\x10\n\x08quantity\x18\x05 \x02(\t\"\x1e\n\tTradeType\x12\x07\n\x03\x42UY\x10\x01\x12\x08\n\x04SELL\x10\x02\"^\n\x1eTradeChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12%\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x17.protobuf.ws.TradeEvent\"\x97\x01\n\x0b\x43\x61ndleEvent\x12\x11\n\ttimestamp\x18\x01 \x02(\x03\x12\x12\n\nopen_price\x18\x02 \x02(\t\x12\x13\n\x0b\x63lose_price\x18\x03 \x02(\t\x12\x12\n\nhigh_price\x18\x04 \x02(\t\x12\x11\n\tlow_price\x18\x05 \x02(\t\x12\x0e\n\x06volume\x18\x06 \x02(\t\x12\x15\n\rquoted_volume\x18\x07 \x02(\t\"\xad\x01\n\x1f\x43\x61ndleChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12K\n\x08interval\x18\x02 \x02(\x0e\x32\x39.protobuf.ws.SubscribeCandleChannelRequest.CandleInterval\x12&\n\x04\x64\x61ta\x18\x03 \x03(\x0b\x32\x18.protobuf.ws.CandleEvent\"o\n\x1b\x43hannelUnsubscribedResponse\x12\x39\n\x04type\x18\x01 \x02(\x0e\x32+.protobuf.ws.UnsubscribeRequest.ChannelType\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\".\n\rErrorResponse\x12\x0c\n\x04\x63ode\x18\x01 \x02(\x05\x12\x0f\n\x07message\x18\x02 \x02(\t\"S\n\x12TickerNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12&\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x18.protobuf.ws.TickerEvent\"_\n\x18OrderBookRawNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12,\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x1e.protobuf.ws.OrderBookRawEvent\"Y\n\x15OrderBookNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12)\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x1b.protobuf.ws.OrderBookEvent\"Q\n\x11TradeNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12%\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x17.protobuf.ws.TradeEvent\"\xa0\x01\n\x12\x43\x61ndleNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12K\n\x08interval\x18\x02 \x02(\x0e\x32\x39.protobuf.ws.SubscribeCandleChannelRequest.CandleInterval\x12&\n\x04\x64\x61ta\x18\x03 \x03(\x0b\x32\x18.protobuf.ws.CandleEvent\"\x0f\n\rLoginResponse\">\n\x15PutLimitOrderResponse\x12\x10\n\x08order_id\x18\x01 \x02(\x03\x12\x13\n\x0b\x61mount_left\x18\x02 \x02(\t\"A\n\x18\x43\x61ncelLimitOrderResponse\x12\x10\n\x08order_id\x18\x01 \x02(\x03\x12\x13\n\x0b\x61mount_left\x18\x02 \x02(\t\"\xb8\x01\n\x0f\x42\x61lanceResponse\x12\x36\n\x04type\x18\x01 \x02(\x0e\x32(.protobuf.ws.BalanceResponse.BalanceType\x12\x10\n\x08\x63urrency\x18\x02 \x02(\t\x12\r\n\x05value\x18\x03 \x02(\t\"L\n\x0b\x42\x61lanceType\x12\t\n\x05TOTAL\x10\x01\x12\r\n\tAVAILABLE\x10\x02\x12\x18\n\x14\x41VAILABLE_WITHDRAWAL\x10\x03\x12\t\n\x05TRADE\x10\x04\"B\n\x10\x42\x61lancesResponse\x12.\n\x08\x62\x61lances\x18\x01 \x03(\x0b\x32\x1c.protobuf.ws.BalanceResponse\"=\n\x12LastTradesResponse\x12\'\n\x06trades\x18\x01 \x03(\x0b\x32\x17.protobuf.ws.TradeEvent\"\x92\x03\n\x11WsRequestMetaData\x12\x45\n\x0crequest_type\x18\x01 \x02(\x0e\x32/.protobuf.ws.WsRequestMetaData.WsRequestMsgType\x12\r\n\x05token\x18\x02 \x01(\t\x12\x16\n\x0e\x64\x65precatedSign\x18\x03 \x01(\t\x12\x0c\n\x04sign\x18\x04 \x01(\x0c\"\x80\x02\n\x10WsRequestMsgType\x12\x14\n\x10SUBSCRIBE_TICKER\x10\x01\x12\x1c\n\x18SUBSCRIBE_ORDER_BOOK_RAW\x10\x02\x12\x18\n\x14SUBSCRIBE_ORDER_BOOK\x10\x03\x12\x13\n\x0fSUBSCRIBE_TRADE\x10\x04\x12\x14\n\x10SUBSCRIBE_CANDLE\x10\x05\x12\x0f\n\x0bUNSUBSCRIBE\x10\x06\x12\t\n\x05LOGIN\x10\x07\x12\x13\n\x0fPUT_LIMIT_ORDER\x10\x08\x12\x16\n\x12\x43\x41NCEL_LIMIT_ORDER\x10\t\x12\x0b\n\x07\x42\x41LANCE\x10\n\x12\x0c\n\x08\x42\x41LANCES\x10\x0b\x12\x0f\n\x0bLAST_TRADES\x10\x0c\"\xd2\x04\n\x12WsResponseMetaData\x12H\n\rresponse_type\x18\x01 \x02(\x0e\x32\x31.protobuf.ws.WsResponseMetaData.WsResponseMsgType\x12\r\n\x05token\x18\x02 \x01(\t\"\xe2\x03\n\x11WsResponseMsgType\x12\x1d\n\x19TICKER_CHANNEL_SUBSCRIBED\x10\x01\x12%\n!ORDER_BOOK_RAW_CHANNEL_SUBSCRIBED\x10\x02\x12!\n\x1dORDER_BOOK_CHANNEL_SUBSCRIBED\x10\x03\x12\x1c\n\x18TRADE_CHANNEL_SUBSCRIBED\x10\x04\x12\x1d\n\x19\x43\x41NDLE_CHANNEL_SUBSCRIBED\x10\x05\x12\x18\n\x14\x43HANNEL_UNSUBSCRIBED\x10\x06\x12\t\n\x05\x45RROR\x10\x07\x12\x11\n\rTICKER_NOTIFY\x10\x08\x12\x19\n\x15ORDER_BOOK_RAW_NOTIFY\x10\t\x12\x15\n\x11ORDER_BOOK_NOTIFY\x10\n\x12\x10\n\x0cTRADE_NOTIFY\x10\x0b\x12\x11\n\rCANDLE_NOTIFY\x10\x0c\x12\x12\n\x0eLOGIN_RESPONSE\x10\r\x12\x1c\n\x18PUT_LIMIT_ORDER_RESPONSE\x10\x0e\x12\x1f\n\x1b\x43\x41NCEL_LIMIT_ORDER_RESPONSE\x10\x0f\x12\x14\n\x10\x42\x41LANCE_RESPONSE\x10\x10\x12\x15\n\x11\x42\x41LANCES_RESPONSE\x10\x11\x12\x18\n\x14LAST_TRADES_RESPONSE\x10\x12\"F\n\tWsRequest\x12,\n\x04meta\x18\x01 \x02(\x0b\x32\x1e.protobuf.ws.WsRequestMetaData\x12\x0b\n\x03msg\x18\x02 \x02(\x0c\"H\n\nWsResponse\x12-\n\x04meta\x18\x01 \x02(\x0b\x32\x1f.protobuf.ws.WsResponseMetaData\x12\x0b\n\x03msg\x18\x02 \x02(\x0c')
+  serialized_pb=_b('\n\x13LivecoinWSapi.proto\x12\x0bprotobuf.ws\"I\n\x1dSubscribeTickerChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12\x11\n\tfrequency\x18\x02 \x01(\x02\"K\n#SubscribeOrderBookRawChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12\r\n\x05\x64\x65pth\x18\x02 \x01(\x05\"H\n SubscribeOrderBookChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12\r\n\x05\x64\x65pth\x18\x02 \x01(\x05\"5\n\x1cSubscribeTradeChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\"\xbc\x01\n\x1dSubscribeCandleChannelRequest\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12K\n\x08interval\x18\x02 \x02(\x0e\x32\x39.protobuf.ws.SubscribeCandleChannelRequest.CandleInterval\x12\x10\n\x05\x64\x65pth\x18\x03 \x01(\x05:\x01\x30\"%\n\x0e\x43\x61ndleInterval\x12\x13\n\x0f\x43\x41NDLE_1_MINUTE\x10\x01\"\xc4\x01\n\x12UnsubscribeRequest\x12\x41\n\x0c\x63hannel_type\x18\x01 \x02(\x0e\x32+.protobuf.ws.UnsubscribeRequest.ChannelType\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\"T\n\x0b\x43hannelType\x12\n\n\x06TICKER\x10\x01\x12\x12\n\x0eORDER_BOOK_RAW\x10\x02\x12\x0e\n\nORDER_BOOK\x10\x03\x12\t\n\x05TRADE\x10\x04\x12\n\n\x06\x43\x41NDLE\x10\x05\"*\n\x0eRequestExpired\x12\x0b\n\x03now\x18\x01 \x02(\x03\x12\x0b\n\x03ttl\x18\x02 \x02(\x05\"T\n\x0cLoginRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x0f\n\x07\x61pi_key\x18\x02 \x02(\t\"\xe1\x01\n\x14PutLimitOrderRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\x12?\n\norder_type\x18\x03 \x02(\x0e\x32+.protobuf.ws.PutLimitOrderRequest.OrderType\x12\x0e\n\x06\x61mount\x18\x04 \x02(\t\x12\r\n\x05price\x18\x05 \x02(\t\"\x1d\n\tOrderType\x12\x07\n\x03\x42ID\x10\x01\x12\x07\n\x03\x41SK\x10\x02\"q\n\x17\x43\x61ncelLimitOrderRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\x12\n\n\x02id\x18\x03 \x02(\x03\"W\n\x0e\x42\x61lanceRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x10\n\x08\x63urrency\x18\x02 \x02(\t\"o\n\x0f\x42\x61lancesRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x10\n\x08\x63urrency\x18\x02 \x01(\t\x12\x15\n\ronly_not_zero\x18\x03 \x01(\x08\"\x9a\x02\n\x11LastTradesRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\x12\x39\n\x08interval\x18\x03 \x01(\x0e\x32\'.protobuf.ws.LastTradesRequest.Interval\x12<\n\ntrade_type\x18\x04 \x01(\x0e\x32(.protobuf.ws.LastTradesRequest.TradeType\"\x1e\n\tTradeType\x12\x08\n\x04SELL\x10\x01\x12\x07\n\x03\x42UY\x10\x02\" \n\x08Interval\x12\n\n\x06MINUTE\x10\x01\x12\x08\n\x04HOUR\x10\x02\"\xd3\x01\n\rTradesRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x15\n\rcurrency_pair\x18\x02 \x01(\t\x12\x37\n\tdirection\x18\x03 \x01(\x0e\x32$.protobuf.ws.TradesRequest.Direction\x12\x0e\n\x06offset\x18\x04 \x01(\x05\x12\r\n\x05limit\x18\x05 \x01(\x05\"\x1e\n\tDirection\x12\x07\n\x03\x41SK\x10\x01\x12\x08\n\x04\x44\x45SC\x10\x02\"\xa0\x03\n\x13\x43lientOrdersRequest\x12\x33\n\x0e\x65xpire_control\x18\x01 \x02(\x0b\x32\x1b.protobuf.ws.RequestExpired\x12\x15\n\rcurrency_pair\x18\x02 \x01(\t\x12<\n\x06status\x18\x03 \x01(\x0e\x32,.protobuf.ws.ClientOrdersRequest.OrderStatus\x12\x13\n\x0bissued_from\x18\x04 \x01(\x03\x12\x11\n\tissued_to\x18\x05 \x01(\x03\x12>\n\norder_type\x18\x06 \x01(\x0e\x32*.protobuf.ws.ClientOrdersRequest.OrderType\x12\x11\n\tstart_row\x18\x07 \x01(\x05\x12\x0f\n\x07\x65nd_row\x18\x08 \x01(\x05\"T\n\x0bOrderStatus\x12\x08\n\x04OPEN\x10\x01\x12\n\n\x06\x43LOSED\x10\x02\x12\r\n\tCANCELLED\x10\x04\x12\r\n\tPARTIALLY\x10\x05\x12\x11\n\rNOT_CANCELLED\x10\x06\"\x1d\n\tOrderType\x12\x07\n\x03\x42ID\x10\x01\x12\x07\n\x03\x41SK\x10\x02\"\xad\x01\n\x0bTickerEvent\x12\x11\n\ttimestamp\x18\x01 \x02(\x03\x12\x0c\n\x04last\x18\x02 \x01(\t\x12\x0c\n\x04high\x18\x03 \x01(\t\x12\x0b\n\x03low\x18\x04 \x01(\t\x12\x0e\n\x06volume\x18\x05 \x01(\t\x12\x0c\n\x04vwap\x18\x06 \x01(\t\x12\x0f\n\x07max_bid\x18\x07 \x01(\t\x12\x0f\n\x07min_ask\x18\x08 \x01(\t\x12\x10\n\x08\x62\x65st_bid\x18\t \x01(\t\x12\x10\n\x08\x62\x65st_ask\x18\n \x01(\t\"`\n\x1fTickerChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12&\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x18.protobuf.ws.TickerEvent\"\xb5\x01\n\x11OrderBookRawEvent\x12\x41\n\norder_type\x18\x01 \x02(\x0e\x32(.protobuf.ws.OrderBookRawEvent.OrderType:\x03\x42ID\x12\n\n\x02id\x18\x02 \x02(\x03\x12\x11\n\ttimestamp\x18\x03 \x02(\x03\x12\r\n\x05price\x18\x04 \x01(\t\x12\x10\n\x08quantity\x18\x05 \x02(\t\"\x1d\n\tOrderType\x12\x07\n\x03\x42ID\x10\x01\x12\x07\n\x03\x41SK\x10\x02\"l\n%OrderBookRawChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12,\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x1e.protobuf.ws.OrderBookRawEvent\"\xa3\x01\n\x0eOrderBookEvent\x12>\n\norder_type\x18\x01 \x02(\x0e\x32%.protobuf.ws.OrderBookEvent.OrderType:\x03\x42ID\x12\x11\n\ttimestamp\x18\x02 \x02(\x03\x12\r\n\x05price\x18\x03 \x02(\t\x12\x10\n\x08quantity\x18\x04 \x02(\t\"\x1d\n\tOrderType\x12\x07\n\x03\x42ID\x10\x01\x12\x07\n\x03\x41SK\x10\x02\"f\n\"OrderBookChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12)\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x1b.protobuf.ws.OrderBookEvent\"\xa8\x01\n\nTradeEvent\x12\n\n\x02id\x18\x01 \x02(\x03\x12:\n\ntrade_type\x18\x02 \x02(\x0e\x32!.protobuf.ws.TradeEvent.TradeType:\x03\x42UY\x12\x11\n\ttimestamp\x18\x03 \x02(\x03\x12\r\n\x05price\x18\x04 \x02(\t\x12\x10\n\x08quantity\x18\x05 \x02(\t\"\x1e\n\tTradeType\x12\x07\n\x03\x42UY\x10\x01\x12\x08\n\x04SELL\x10\x02\"^\n\x1eTradeChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12%\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x17.protobuf.ws.TradeEvent\"\x97\x01\n\x0b\x43\x61ndleEvent\x12\x11\n\ttimestamp\x18\x01 \x02(\x03\x12\x12\n\nopen_price\x18\x02 \x02(\t\x12\x13\n\x0b\x63lose_price\x18\x03 \x02(\t\x12\x12\n\nhigh_price\x18\x04 \x02(\t\x12\x11\n\tlow_price\x18\x05 \x02(\t\x12\x0e\n\x06volume\x18\x06 \x02(\t\x12\x15\n\rquoted_volume\x18\x07 \x02(\t\"\xad\x01\n\x1f\x43\x61ndleChannelSubscribedResponse\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12K\n\x08interval\x18\x02 \x02(\x0e\x32\x39.protobuf.ws.SubscribeCandleChannelRequest.CandleInterval\x12&\n\x04\x64\x61ta\x18\x03 \x03(\x0b\x32\x18.protobuf.ws.CandleEvent\"o\n\x1b\x43hannelUnsubscribedResponse\x12\x39\n\x04type\x18\x01 \x02(\x0e\x32+.protobuf.ws.UnsubscribeRequest.ChannelType\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\".\n\rErrorResponse\x12\x0c\n\x04\x63ode\x18\x01 \x02(\x05\x12\x0f\n\x07message\x18\x02 \x02(\t\"S\n\x12TickerNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12&\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x18.protobuf.ws.TickerEvent\"_\n\x18OrderBookRawNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12,\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x1e.protobuf.ws.OrderBookRawEvent\"Y\n\x15OrderBookNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12)\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x1b.protobuf.ws.OrderBookEvent\"Q\n\x11TradeNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12%\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x17.protobuf.ws.TradeEvent\"\xa0\x01\n\x12\x43\x61ndleNotification\x12\x15\n\rcurrency_pair\x18\x01 \x02(\t\x12K\n\x08interval\x18\x02 \x02(\x0e\x32\x39.protobuf.ws.SubscribeCandleChannelRequest.CandleInterval\x12&\n\x04\x64\x61ta\x18\x03 \x03(\x0b\x32\x18.protobuf.ws.CandleEvent\"\x0f\n\rLoginResponse\">\n\x15PutLimitOrderResponse\x12\x10\n\x08order_id\x18\x01 \x02(\x03\x12\x13\n\x0b\x61mount_left\x18\x02 \x02(\t\"A\n\x18\x43\x61ncelLimitOrderResponse\x12\x10\n\x08order_id\x18\x01 \x02(\x03\x12\x13\n\x0b\x61mount_left\x18\x02 \x02(\t\"\xb8\x01\n\x0f\x42\x61lanceResponse\x12\x36\n\x04type\x18\x01 \x02(\x0e\x32(.protobuf.ws.BalanceResponse.BalanceType\x12\x10\n\x08\x63urrency\x18\x02 \x02(\t\x12\r\n\x05value\x18\x03 \x02(\t\"L\n\x0b\x42\x61lanceType\x12\t\n\x05TOTAL\x10\x01\x12\r\n\tAVAILABLE\x10\x02\x12\x18\n\x14\x41VAILABLE_WITHDRAWAL\x10\x03\x12\t\n\x05TRADE\x10\x04\"B\n\x10\x42\x61lancesResponse\x12.\n\x08\x62\x61lances\x18\x01 \x03(\x0b\x32\x1c.protobuf.ws.BalanceResponse\"=\n\x12LastTradesResponse\x12\'\n\x06trades\x18\x01 \x03(\x0b\x32\x17.protobuf.ws.TradeEvent\"\xbd\x01\n\x05Trade\x12\n\n\x02id\x18\x01 \x02(\x03\x12:\n\ntrade_type\x18\x02 \x02(\x0e\x32!.protobuf.ws.TradeEvent.TradeType:\x03\x42UY\x12\x11\n\ttimestamp\x18\x03 \x02(\x03\x12\x15\n\rcurrency_pair\x18\x04 \x02(\t\x12\r\n\x05price\x18\x05 \x02(\t\x12\x10\n\x08quantity\x18\x06 \x02(\t\x12\x12\n\ncommission\x18\x07 \x02(\t\x12\r\n\x05\x62onus\x18\x08 \x02(\t\"4\n\x0eTradesResponse\x12\"\n\x06trades\x18\x01 \x03(\x0b\x32\x12.protobuf.ws.Trade\"\x86\x05\n\x05Order\x12\n\n\x02id\x18\x01 \x02(\x03\x12\x15\n\rcurrency_pair\x18\x02 \x02(\t\x12\x17\n\x0fgood_until_time\x18\x03 \x02(\x03\x12\x30\n\norder_type\x18\x04 \x02(\x0e\x32\x1c.protobuf.ws.Order.OrderType\x12\x34\n\x0corder_status\x18\x05 \x02(\x0e\x32\x1e.protobuf.ws.Order.OrderStatus\x12\x12\n\nissue_time\x18\x06 \x02(\x03\x12\r\n\x05price\x18\x07 \x01(\t\x12\x10\n\x08quantity\x18\x08 \x02(\t\x12\x1a\n\x12remaining_quantity\x18\t \x02(\t\x12\x1b\n\x13\x63ommission_by_trade\x18\n \x02(\t\x12\x16\n\x0e\x62onus_by_trade\x18\x0b \x02(\t\x12\x12\n\nbonus_rate\x18\x0c \x02(\t\x12\x17\n\x0f\x63ommission_rate\x18\r \x02(\t\x12\x1e\n\x16last_modification_time\x18\x0e \x02(\x03\"]\n\tOrderType\x12\x0e\n\nMARKET_BUY\x10\x01\x12\x0f\n\x0bMARKET_SELL\x10\x02\x12\r\n\tLIMIT_BUY\x10\x03\x12\x0e\n\nLIMIT_SELL\x10\x04\x12\x10\n\x0cUNKNOWN_TYPE\x10\x05\"\xa6\x01\n\x0bOrderStatus\x12\x07\n\x03NEW\x10\x01\x12\x08\n\x04OPEN\x10\x02\x12\x0b\n\x07\x45XPIRED\x10\x03\x12\r\n\tCANCELLED\x10\x04\x12\x0c\n\x08\x45XECUTED\x10\x05\x12\x14\n\x10PARTIALLY_FILLED\x10\x06\x12\"\n\x1ePARTIALLY_FILLED_AND_CANCELLED\x10\x07\x12 \n\x1cPARTIALLY_FILLED_AND_EXPIRED\x10\x08\"o\n\x14\x43lientOrdersResponse\x12\x11\n\ttotalRows\x18\x01 \x02(\x05\x12\x10\n\x08startRow\x18\x02 \x02(\x05\x12\x0e\n\x06\x65ndRow\x18\x03 \x02(\x05\x12\"\n\x06orders\x18\x04 \x03(\x0b\x32\x12.protobuf.ws.Order\"\xb1\x03\n\x11WsRequestMetaData\x12\x45\n\x0crequest_type\x18\x01 \x02(\x0e\x32/.protobuf.ws.WsRequestMetaData.WsRequestMsgType\x12\r\n\x05token\x18\x02 \x01(\t\x12\x16\n\x0e\x64\x65precatedSign\x18\x03 \x01(\t\x12\x0c\n\x04sign\x18\x04 \x01(\x0c\"\x9f\x02\n\x10WsRequestMsgType\x12\x14\n\x10SUBSCRIBE_TICKER\x10\x01\x12\x1c\n\x18SUBSCRIBE_ORDER_BOOK_RAW\x10\x02\x12\x18\n\x14SUBSCRIBE_ORDER_BOOK\x10\x03\x12\x13\n\x0fSUBSCRIBE_TRADE\x10\x04\x12\x14\n\x10SUBSCRIBE_CANDLE\x10\x05\x12\x0f\n\x0bUNSUBSCRIBE\x10\x06\x12\t\n\x05LOGIN\x10\x07\x12\x13\n\x0fPUT_LIMIT_ORDER\x10\x08\x12\x16\n\x12\x43\x41NCEL_LIMIT_ORDER\x10\t\x12\x0b\n\x07\x42\x41LANCE\x10\n\x12\x0c\n\x08\x42\x41LANCES\x10\x0b\x12\x0f\n\x0bLAST_TRADES\x10\x0c\x12\n\n\x06TRADES\x10\r\x12\x11\n\rCLIENT_ORDERS\x10\x0e\"\x83\x05\n\x12WsResponseMetaData\x12H\n\rresponse_type\x18\x01 \x02(\x0e\x32\x31.protobuf.ws.WsResponseMetaData.WsResponseMsgType\x12\r\n\x05token\x18\x02 \x01(\t\"\x93\x04\n\x11WsResponseMsgType\x12\x1d\n\x19TICKER_CHANNEL_SUBSCRIBED\x10\x01\x12%\n!ORDER_BOOK_RAW_CHANNEL_SUBSCRIBED\x10\x02\x12!\n\x1dORDER_BOOK_CHANNEL_SUBSCRIBED\x10\x03\x12\x1c\n\x18TRADE_CHANNEL_SUBSCRIBED\x10\x04\x12\x1d\n\x19\x43\x41NDLE_CHANNEL_SUBSCRIBED\x10\x05\x12\x18\n\x14\x43HANNEL_UNSUBSCRIBED\x10\x06\x12\t\n\x05\x45RROR\x10\x07\x12\x11\n\rTICKER_NOTIFY\x10\x08\x12\x19\n\x15ORDER_BOOK_RAW_NOTIFY\x10\t\x12\x15\n\x11ORDER_BOOK_NOTIFY\x10\n\x12\x10\n\x0cTRADE_NOTIFY\x10\x0b\x12\x11\n\rCANDLE_NOTIFY\x10\x0c\x12\x12\n\x0eLOGIN_RESPONSE\x10\r\x12\x1c\n\x18PUT_LIMIT_ORDER_RESPONSE\x10\x0e\x12\x1f\n\x1b\x43\x41NCEL_LIMIT_ORDER_RESPONSE\x10\x0f\x12\x14\n\x10\x42\x41LANCE_RESPONSE\x10\x10\x12\x15\n\x11\x42\x41LANCES_RESPONSE\x10\x11\x12\x18\n\x14LAST_TRADES_RESPONSE\x10\x12\x12\x13\n\x0fTRADES_RESPONSE\x10\x13\x12\x1a\n\x16\x43LIENT_ORDERS_RESPONSE\x10\x14\"F\n\tWsRequest\x12,\n\x04meta\x18\x01 \x02(\x0b\x32\x1e.protobuf.ws.WsRequestMetaData\x12\x0b\n\x03msg\x18\x02 \x02(\x0c\"H\n\nWsResponse\x12-\n\x04meta\x18\x01 \x02(\x0b\x32\x1f.protobuf.ws.WsResponseMetaData\x12\x0b\n\x03msg\x18\x02 \x02(\x0c')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -142,6 +142,84 @@ _LASTTRADESREQUEST_INTERVAL = _descriptor.EnumDescriptor(
 )
 _sym_db.RegisterEnumDescriptor(_LASTTRADESREQUEST_INTERVAL)
 
+_TRADESREQUEST_DIRECTION = _descriptor.EnumDescriptor(
+  name='Direction',
+  full_name='protobuf.ws.TradesRequest.Direction',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='ASK', index=0, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='DESC', index=1, number=2,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=1849,
+  serialized_end=1879,
+)
+_sym_db.RegisterEnumDescriptor(_TRADESREQUEST_DIRECTION)
+
+_CLIENTORDERSREQUEST_ORDERSTATUS = _descriptor.EnumDescriptor(
+  name='OrderStatus',
+  full_name='protobuf.ws.ClientOrdersRequest.OrderStatus',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='OPEN', index=0, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='CLOSED', index=1, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='CANCELLED', index=2, number=4,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PARTIALLY', index=3, number=5,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='NOT_CANCELLED', index=4, number=6,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=2183,
+  serialized_end=2267,
+)
+_sym_db.RegisterEnumDescriptor(_CLIENTORDERSREQUEST_ORDERSTATUS)
+
+_CLIENTORDERSREQUEST_ORDERTYPE = _descriptor.EnumDescriptor(
+  name='OrderType',
+  full_name='protobuf.ws.ClientOrdersRequest.OrderType',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='BID', index=0, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ASK', index=1, number=2,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=1034,
+  serialized_end=1063,
+)
+_sym_db.RegisterEnumDescriptor(_CLIENTORDERSREQUEST_ORDERTYPE)
+
 _ORDERBOOKRAWEVENT_ORDERTYPE = _descriptor.EnumDescriptor(
   name='OrderType',
   full_name='protobuf.ws.OrderBookRawEvent.OrderType',
@@ -203,8 +281,8 @@ _TRADEEVENT_TRADETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2644,
-  serialized_end=2674,
+  serialized_start=3277,
+  serialized_end=3307,
 )
 _sym_db.RegisterEnumDescriptor(_TRADEEVENT_TRADETYPE)
 
@@ -233,10 +311,90 @@ _BALANCERESPONSE_BALANCETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=4039,
-  serialized_end=4115,
+  serialized_start=4672,
+  serialized_end=4748,
 )
 _sym_db.RegisterEnumDescriptor(_BALANCERESPONSE_BALANCETYPE)
+
+_ORDER_ORDERTYPE = _descriptor.EnumDescriptor(
+  name='OrderType',
+  full_name='protobuf.ws.Order.OrderType',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='MARKET_BUY', index=0, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='MARKET_SELL', index=1, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='LIMIT_BUY', index=2, number=3,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='LIMIT_SELL', index=3, number=4,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='UNKNOWN_TYPE', index=4, number=5,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=5512,
+  serialized_end=5605,
+)
+_sym_db.RegisterEnumDescriptor(_ORDER_ORDERTYPE)
+
+_ORDER_ORDERSTATUS = _descriptor.EnumDescriptor(
+  name='OrderStatus',
+  full_name='protobuf.ws.Order.OrderStatus',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='NEW', index=0, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='OPEN', index=1, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EXPIRED', index=2, number=3,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='CANCELLED', index=3, number=4,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='EXECUTED', index=4, number=5,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PARTIALLY_FILLED', index=5, number=6,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PARTIALLY_FILLED_AND_CANCELLED', index=6, number=7,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PARTIALLY_FILLED_AND_EXPIRED', index=7, number=8,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=5608,
+  serialized_end=5774,
+)
+_sym_db.RegisterEnumDescriptor(_ORDER_ORDERSTATUS)
 
 _WSREQUESTMETADATA_WSREQUESTMSGTYPE = _descriptor.EnumDescriptor(
   name='WsRequestMsgType',
@@ -292,11 +450,19 @@ _WSREQUESTMETADATA_WSREQUESTMSGTYPE = _descriptor.EnumDescriptor(
       name='LAST_TRADES', index=11, number=12,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='TRADES', index=12, number=13,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='CLIENT_ORDERS', index=13, number=14,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=4395,
-  serialized_end=4651,
+  serialized_start=6036,
+  serialized_end=6323,
 )
 _sym_db.RegisterEnumDescriptor(_WSREQUESTMETADATA_WSREQUESTMSGTYPE)
 
@@ -378,11 +544,19 @@ _WSRESPONSEMETADATA_WSRESPONSEMSGTYPE = _descriptor.EnumDescriptor(
       name='LAST_TRADES_RESPONSE', index=17, number=18,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='TRADES_RESPONSE', index=18, number=19,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='CLIENT_ORDERS_RESPONSE', index=19, number=20,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=4766,
-  serialized_end=5248,
+  serialized_start=6438,
+  serialized_end=6969,
 )
 _sym_db.RegisterEnumDescriptor(_WSRESPONSEMETADATA_WSRESPONSEMSGTYPE)
 
@@ -922,6 +1096,146 @@ _LASTTRADESREQUEST = _descriptor.Descriptor(
 )
 
 
+_TRADESREQUEST = _descriptor.Descriptor(
+  name='TradesRequest',
+  full_name='protobuf.ws.TradesRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='expire_control', full_name='protobuf.ws.TradesRequest.expire_control', index=0,
+      number=1, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='currency_pair', full_name='protobuf.ws.TradesRequest.currency_pair', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='direction', full_name='protobuf.ws.TradesRequest.direction', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='offset', full_name='protobuf.ws.TradesRequest.offset', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='limit', full_name='protobuf.ws.TradesRequest.limit', index=4,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _TRADESREQUEST_DIRECTION,
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1668,
+  serialized_end=1879,
+)
+
+
+_CLIENTORDERSREQUEST = _descriptor.Descriptor(
+  name='ClientOrdersRequest',
+  full_name='protobuf.ws.ClientOrdersRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='expire_control', full_name='protobuf.ws.ClientOrdersRequest.expire_control', index=0,
+      number=1, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='currency_pair', full_name='protobuf.ws.ClientOrdersRequest.currency_pair', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='status', full_name='protobuf.ws.ClientOrdersRequest.status', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='issued_from', full_name='protobuf.ws.ClientOrdersRequest.issued_from', index=3,
+      number=4, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='issued_to', full_name='protobuf.ws.ClientOrdersRequest.issued_to', index=4,
+      number=5, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='order_type', full_name='protobuf.ws.ClientOrdersRequest.order_type', index=5,
+      number=6, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='start_row', full_name='protobuf.ws.ClientOrdersRequest.start_row', index=6,
+      number=7, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='end_row', full_name='protobuf.ws.ClientOrdersRequest.end_row', index=7,
+      number=8, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _CLIENTORDERSREQUEST_ORDERSTATUS,
+    _CLIENTORDERSREQUEST_ORDERTYPE,
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1882,
+  serialized_end=2298,
+)
+
+
 _TICKEREVENT = _descriptor.Descriptor(
   name='TickerEvent',
   full_name='protobuf.ws.TickerEvent',
@@ -1010,8 +1324,8 @@ _TICKEREVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1668,
-  serialized_end=1841,
+  serialized_start=2301,
+  serialized_end=2474,
 )
 
 
@@ -1047,8 +1361,8 @@ _TICKERCHANNELSUBSCRIBEDRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1843,
-  serialized_end=1939,
+  serialized_start=2476,
+  serialized_end=2572,
 )
 
 
@@ -1106,8 +1420,8 @@ _ORDERBOOKRAWEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1942,
-  serialized_end=2123,
+  serialized_start=2575,
+  serialized_end=2756,
 )
 
 
@@ -1143,8 +1457,8 @@ _ORDERBOOKRAWCHANNELSUBSCRIBEDRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2125,
-  serialized_end=2233,
+  serialized_start=2758,
+  serialized_end=2866,
 )
 
 
@@ -1195,8 +1509,8 @@ _ORDERBOOKEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2236,
-  serialized_end=2399,
+  serialized_start=2869,
+  serialized_end=3032,
 )
 
 
@@ -1232,8 +1546,8 @@ _ORDERBOOKCHANNELSUBSCRIBEDRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2401,
-  serialized_end=2503,
+  serialized_start=3034,
+  serialized_end=3136,
 )
 
 
@@ -1291,8 +1605,8 @@ _TRADEEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2506,
-  serialized_end=2674,
+  serialized_start=3139,
+  serialized_end=3307,
 )
 
 
@@ -1328,8 +1642,8 @@ _TRADECHANNELSUBSCRIBEDRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2676,
-  serialized_end=2770,
+  serialized_start=3309,
+  serialized_end=3403,
 )
 
 
@@ -1400,8 +1714,8 @@ _CANDLEEVENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2773,
-  serialized_end=2924,
+  serialized_start=3406,
+  serialized_end=3557,
 )
 
 
@@ -1444,8 +1758,8 @@ _CANDLECHANNELSUBSCRIBEDRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2927,
-  serialized_end=3100,
+  serialized_start=3560,
+  serialized_end=3733,
 )
 
 
@@ -1481,8 +1795,8 @@ _CHANNELUNSUBSCRIBEDRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3102,
-  serialized_end=3213,
+  serialized_start=3735,
+  serialized_end=3846,
 )
 
 
@@ -1518,8 +1832,8 @@ _ERRORRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3215,
-  serialized_end=3261,
+  serialized_start=3848,
+  serialized_end=3894,
 )
 
 
@@ -1555,8 +1869,8 @@ _TICKERNOTIFICATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3263,
-  serialized_end=3346,
+  serialized_start=3896,
+  serialized_end=3979,
 )
 
 
@@ -1592,8 +1906,8 @@ _ORDERBOOKRAWNOTIFICATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3348,
-  serialized_end=3443,
+  serialized_start=3981,
+  serialized_end=4076,
 )
 
 
@@ -1629,8 +1943,8 @@ _ORDERBOOKNOTIFICATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3445,
-  serialized_end=3534,
+  serialized_start=4078,
+  serialized_end=4167,
 )
 
 
@@ -1666,8 +1980,8 @@ _TRADENOTIFICATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3536,
-  serialized_end=3617,
+  serialized_start=4169,
+  serialized_end=4250,
 )
 
 
@@ -1710,8 +2024,8 @@ _CANDLENOTIFICATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3620,
-  serialized_end=3780,
+  serialized_start=4253,
+  serialized_end=4413,
 )
 
 
@@ -1733,8 +2047,8 @@ _LOGINRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3782,
-  serialized_end=3797,
+  serialized_start=4415,
+  serialized_end=4430,
 )
 
 
@@ -1770,8 +2084,8 @@ _PUTLIMITORDERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3799,
-  serialized_end=3861,
+  serialized_start=4432,
+  serialized_end=4494,
 )
 
 
@@ -1807,8 +2121,8 @@ _CANCELLIMITORDERRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3863,
-  serialized_end=3928,
+  serialized_start=4496,
+  serialized_end=4561,
 )
 
 
@@ -1852,8 +2166,8 @@ _BALANCERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3931,
-  serialized_end=4115,
+  serialized_start=4564,
+  serialized_end=4748,
 )
 
 
@@ -1882,8 +2196,8 @@ _BALANCESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4117,
-  serialized_end=4183,
+  serialized_start=4750,
+  serialized_end=4816,
 )
 
 
@@ -1912,8 +2226,291 @@ _LASTTRADESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4185,
-  serialized_end=4246,
+  serialized_start=4818,
+  serialized_end=4879,
+)
+
+
+_TRADE = _descriptor.Descriptor(
+  name='Trade',
+  full_name='protobuf.ws.Trade',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='id', full_name='protobuf.ws.Trade.id', index=0,
+      number=1, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='trade_type', full_name='protobuf.ws.Trade.trade_type', index=1,
+      number=2, type=14, cpp_type=8, label=2,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='protobuf.ws.Trade.timestamp', index=2,
+      number=3, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='currency_pair', full_name='protobuf.ws.Trade.currency_pair', index=3,
+      number=4, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='price', full_name='protobuf.ws.Trade.price', index=4,
+      number=5, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='quantity', full_name='protobuf.ws.Trade.quantity', index=5,
+      number=6, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='commission', full_name='protobuf.ws.Trade.commission', index=6,
+      number=7, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='bonus', full_name='protobuf.ws.Trade.bonus', index=7,
+      number=8, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=4882,
+  serialized_end=5071,
+)
+
+
+_TRADESRESPONSE = _descriptor.Descriptor(
+  name='TradesResponse',
+  full_name='protobuf.ws.TradesResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='trades', full_name='protobuf.ws.TradesResponse.trades', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=5073,
+  serialized_end=5125,
+)
+
+
+_ORDER = _descriptor.Descriptor(
+  name='Order',
+  full_name='protobuf.ws.Order',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='id', full_name='protobuf.ws.Order.id', index=0,
+      number=1, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='currency_pair', full_name='protobuf.ws.Order.currency_pair', index=1,
+      number=2, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='good_until_time', full_name='protobuf.ws.Order.good_until_time', index=2,
+      number=3, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='order_type', full_name='protobuf.ws.Order.order_type', index=3,
+      number=4, type=14, cpp_type=8, label=2,
+      has_default_value=False, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='order_status', full_name='protobuf.ws.Order.order_status', index=4,
+      number=5, type=14, cpp_type=8, label=2,
+      has_default_value=False, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='issue_time', full_name='protobuf.ws.Order.issue_time', index=5,
+      number=6, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='price', full_name='protobuf.ws.Order.price', index=6,
+      number=7, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='quantity', full_name='protobuf.ws.Order.quantity', index=7,
+      number=8, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='remaining_quantity', full_name='protobuf.ws.Order.remaining_quantity', index=8,
+      number=9, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='commission_by_trade', full_name='protobuf.ws.Order.commission_by_trade', index=9,
+      number=10, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='bonus_by_trade', full_name='protobuf.ws.Order.bonus_by_trade', index=10,
+      number=11, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='bonus_rate', full_name='protobuf.ws.Order.bonus_rate', index=11,
+      number=12, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='commission_rate', full_name='protobuf.ws.Order.commission_rate', index=12,
+      number=13, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='last_modification_time', full_name='protobuf.ws.Order.last_modification_time', index=13,
+      number=14, type=3, cpp_type=2, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _ORDER_ORDERTYPE,
+    _ORDER_ORDERSTATUS,
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=5128,
+  serialized_end=5774,
+)
+
+
+_CLIENTORDERSRESPONSE = _descriptor.Descriptor(
+  name='ClientOrdersResponse',
+  full_name='protobuf.ws.ClientOrdersResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='totalRows', full_name='protobuf.ws.ClientOrdersResponse.totalRows', index=0,
+      number=1, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='startRow', full_name='protobuf.ws.ClientOrdersResponse.startRow', index=1,
+      number=2, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='endRow', full_name='protobuf.ws.ClientOrdersResponse.endRow', index=2,
+      number=3, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='orders', full_name='protobuf.ws.ClientOrdersResponse.orders', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=5776,
+  serialized_end=5887,
 )
 
 
@@ -1964,8 +2561,8 @@ _WSREQUESTMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4249,
-  serialized_end=4651,
+  serialized_start=5890,
+  serialized_end=6323,
 )
 
 
@@ -2002,8 +2599,8 @@ _WSRESPONSEMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4654,
-  serialized_end=5248,
+  serialized_start=6326,
+  serialized_end=6969,
 )
 
 
@@ -2039,8 +2636,8 @@ _WSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5250,
-  serialized_end=5320,
+  serialized_start=6971,
+  serialized_end=7041,
 )
 
 
@@ -2076,8 +2673,8 @@ _WSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=5322,
-  serialized_end=5394,
+  serialized_start=7043,
+  serialized_end=7115,
 )
 
 _SUBSCRIBECANDLECHANNELREQUEST.fields_by_name['interval'].enum_type = _SUBSCRIBECANDLECHANNELREQUEST_CANDLEINTERVAL
@@ -2096,6 +2693,14 @@ _LASTTRADESREQUEST.fields_by_name['interval'].enum_type = _LASTTRADESREQUEST_INT
 _LASTTRADESREQUEST.fields_by_name['trade_type'].enum_type = _LASTTRADESREQUEST_TRADETYPE
 _LASTTRADESREQUEST_TRADETYPE.containing_type = _LASTTRADESREQUEST
 _LASTTRADESREQUEST_INTERVAL.containing_type = _LASTTRADESREQUEST
+_TRADESREQUEST.fields_by_name['expire_control'].message_type = _REQUESTEXPIRED
+_TRADESREQUEST.fields_by_name['direction'].enum_type = _TRADESREQUEST_DIRECTION
+_TRADESREQUEST_DIRECTION.containing_type = _TRADESREQUEST
+_CLIENTORDERSREQUEST.fields_by_name['expire_control'].message_type = _REQUESTEXPIRED
+_CLIENTORDERSREQUEST.fields_by_name['status'].enum_type = _CLIENTORDERSREQUEST_ORDERSTATUS
+_CLIENTORDERSREQUEST.fields_by_name['order_type'].enum_type = _CLIENTORDERSREQUEST_ORDERTYPE
+_CLIENTORDERSREQUEST_ORDERSTATUS.containing_type = _CLIENTORDERSREQUEST
+_CLIENTORDERSREQUEST_ORDERTYPE.containing_type = _CLIENTORDERSREQUEST
 _TICKERCHANNELSUBSCRIBEDRESPONSE.fields_by_name['data'].message_type = _TICKEREVENT
 _ORDERBOOKRAWEVENT.fields_by_name['order_type'].enum_type = _ORDERBOOKRAWEVENT_ORDERTYPE
 _ORDERBOOKRAWEVENT_ORDERTYPE.containing_type = _ORDERBOOKRAWEVENT
@@ -2119,6 +2724,13 @@ _BALANCERESPONSE.fields_by_name['type'].enum_type = _BALANCERESPONSE_BALANCETYPE
 _BALANCERESPONSE_BALANCETYPE.containing_type = _BALANCERESPONSE
 _BALANCESRESPONSE.fields_by_name['balances'].message_type = _BALANCERESPONSE
 _LASTTRADESRESPONSE.fields_by_name['trades'].message_type = _TRADEEVENT
+_TRADE.fields_by_name['trade_type'].enum_type = _TRADEEVENT_TRADETYPE
+_TRADESRESPONSE.fields_by_name['trades'].message_type = _TRADE
+_ORDER.fields_by_name['order_type'].enum_type = _ORDER_ORDERTYPE
+_ORDER.fields_by_name['order_status'].enum_type = _ORDER_ORDERSTATUS
+_ORDER_ORDERTYPE.containing_type = _ORDER
+_ORDER_ORDERSTATUS.containing_type = _ORDER
+_CLIENTORDERSRESPONSE.fields_by_name['orders'].message_type = _ORDER
 _WSREQUESTMETADATA.fields_by_name['request_type'].enum_type = _WSREQUESTMETADATA_WSREQUESTMSGTYPE
 _WSREQUESTMETADATA_WSREQUESTMSGTYPE.containing_type = _WSREQUESTMETADATA
 _WSRESPONSEMETADATA.fields_by_name['response_type'].enum_type = _WSRESPONSEMETADATA_WSRESPONSEMSGTYPE
@@ -2138,6 +2750,8 @@ DESCRIPTOR.message_types_by_name['CancelLimitOrderRequest'] = _CANCELLIMITORDERR
 DESCRIPTOR.message_types_by_name['BalanceRequest'] = _BALANCEREQUEST
 DESCRIPTOR.message_types_by_name['BalancesRequest'] = _BALANCESREQUEST
 DESCRIPTOR.message_types_by_name['LastTradesRequest'] = _LASTTRADESREQUEST
+DESCRIPTOR.message_types_by_name['TradesRequest'] = _TRADESREQUEST
+DESCRIPTOR.message_types_by_name['ClientOrdersRequest'] = _CLIENTORDERSREQUEST
 DESCRIPTOR.message_types_by_name['TickerEvent'] = _TICKEREVENT
 DESCRIPTOR.message_types_by_name['TickerChannelSubscribedResponse'] = _TICKERCHANNELSUBSCRIBEDRESPONSE
 DESCRIPTOR.message_types_by_name['OrderBookRawEvent'] = _ORDERBOOKRAWEVENT
@@ -2161,6 +2775,10 @@ DESCRIPTOR.message_types_by_name['CancelLimitOrderResponse'] = _CANCELLIMITORDER
 DESCRIPTOR.message_types_by_name['BalanceResponse'] = _BALANCERESPONSE
 DESCRIPTOR.message_types_by_name['BalancesResponse'] = _BALANCESRESPONSE
 DESCRIPTOR.message_types_by_name['LastTradesResponse'] = _LASTTRADESRESPONSE
+DESCRIPTOR.message_types_by_name['Trade'] = _TRADE
+DESCRIPTOR.message_types_by_name['TradesResponse'] = _TRADESRESPONSE
+DESCRIPTOR.message_types_by_name['Order'] = _ORDER
+DESCRIPTOR.message_types_by_name['ClientOrdersResponse'] = _CLIENTORDERSRESPONSE
 DESCRIPTOR.message_types_by_name['WsRequestMetaData'] = _WSREQUESTMETADATA
 DESCRIPTOR.message_types_by_name['WsResponseMetaData'] = _WSRESPONSEMETADATA
 DESCRIPTOR.message_types_by_name['WsRequest'] = _WSREQUEST
@@ -2256,6 +2874,20 @@ LastTradesRequest = _reflection.GeneratedProtocolMessageType('LastTradesRequest'
   # @@protoc_insertion_point(class_scope:protobuf.ws.LastTradesRequest)
   ))
 _sym_db.RegisterMessage(LastTradesRequest)
+
+TradesRequest = _reflection.GeneratedProtocolMessageType('TradesRequest', (_message.Message,), dict(
+  DESCRIPTOR = _TRADESREQUEST,
+  __module__ = 'LivecoinWSapi_pb2'
+  # @@protoc_insertion_point(class_scope:protobuf.ws.TradesRequest)
+  ))
+_sym_db.RegisterMessage(TradesRequest)
+
+ClientOrdersRequest = _reflection.GeneratedProtocolMessageType('ClientOrdersRequest', (_message.Message,), dict(
+  DESCRIPTOR = _CLIENTORDERSREQUEST,
+  __module__ = 'LivecoinWSapi_pb2'
+  # @@protoc_insertion_point(class_scope:protobuf.ws.ClientOrdersRequest)
+  ))
+_sym_db.RegisterMessage(ClientOrdersRequest)
 
 TickerEvent = _reflection.GeneratedProtocolMessageType('TickerEvent', (_message.Message,), dict(
   DESCRIPTOR = _TICKEREVENT,
@@ -2417,6 +3049,34 @@ LastTradesResponse = _reflection.GeneratedProtocolMessageType('LastTradesRespons
   # @@protoc_insertion_point(class_scope:protobuf.ws.LastTradesResponse)
   ))
 _sym_db.RegisterMessage(LastTradesResponse)
+
+Trade = _reflection.GeneratedProtocolMessageType('Trade', (_message.Message,), dict(
+  DESCRIPTOR = _TRADE,
+  __module__ = 'LivecoinWSapi_pb2'
+  # @@protoc_insertion_point(class_scope:protobuf.ws.Trade)
+  ))
+_sym_db.RegisterMessage(Trade)
+
+TradesResponse = _reflection.GeneratedProtocolMessageType('TradesResponse', (_message.Message,), dict(
+  DESCRIPTOR = _TRADESRESPONSE,
+  __module__ = 'LivecoinWSapi_pb2'
+  # @@protoc_insertion_point(class_scope:protobuf.ws.TradesResponse)
+  ))
+_sym_db.RegisterMessage(TradesResponse)
+
+Order = _reflection.GeneratedProtocolMessageType('Order', (_message.Message,), dict(
+  DESCRIPTOR = _ORDER,
+  __module__ = 'LivecoinWSapi_pb2'
+  # @@protoc_insertion_point(class_scope:protobuf.ws.Order)
+  ))
+_sym_db.RegisterMessage(Order)
+
+ClientOrdersResponse = _reflection.GeneratedProtocolMessageType('ClientOrdersResponse', (_message.Message,), dict(
+  DESCRIPTOR = _CLIENTORDERSRESPONSE,
+  __module__ = 'LivecoinWSapi_pb2'
+  # @@protoc_insertion_point(class_scope:protobuf.ws.ClientOrdersResponse)
+  ))
+_sym_db.RegisterMessage(ClientOrdersResponse)
 
 WsRequestMetaData = _reflection.GeneratedProtocolMessageType('WsRequestMetaData', (_message.Message,), dict(
   DESCRIPTOR = _WSREQUESTMETADATA,
